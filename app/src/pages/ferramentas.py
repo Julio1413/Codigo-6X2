@@ -88,6 +88,7 @@ def header(
                 alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
             ),
             height=50,
+            margin=ft.margin.all(-10),
         ),
     ),
     ft.Text(f'\n',size=1)
@@ -105,6 +106,7 @@ def container(page,
             bgcolor=brightness(page),
             alignment=ft.alignment.center,
             content=ft.Column(
+                scroll=ft.ScrollMode.AUTO,
                 alignment=ft.MainAxisAlignment.START,
                 controls=controles
             )
@@ -122,13 +124,14 @@ def dialog(page,
     
    
     dlg = ft.AlertDialog(
-        modal=True
+        modal=True,
+        content_padding=ft.padding.all(0),
         bgcolor=ft.Colors.with_opacity(0.0, ft.Colors.WHITE),
         barrier_color=ft.Colors.with_opacity(0.5, ft.Colors.BLACK),
         content=ft.Container(
             blur=(10, 10),
-            bgcolor=ft.Colors.WHITE.with_opacity(0.2, ft.Colors.WHITE70),
-            margin=ft.margin.only(top=6,left=4,right=4,bottom=4),
+            bgcolor=ft.Colors.with_opacity(0.2, brightness(page)),
+            margin=ft.margin.only(top=6,left=7,right=7,bottom=4),
             border_radius=ft.border_radius.all(20),
             expand=True,
             height=450,

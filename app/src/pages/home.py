@@ -1,6 +1,6 @@
 import os
 import flet as ft
-from pages import configs, ferramentas
+from pages import configs, ferramentas, horarios_aula
 import platform
 import json
 from datetime import datetime
@@ -105,7 +105,6 @@ def inicial (page):
         ]
     pasta_global = ferramentas.pasta_global()
     page.clean()
-    page.add(ferramentas.header(titulo="6X2_App", icone=ft.Icons.HOME_ROUNDED, page=page, destino=configs.configs,icone_btn=ft.Icons.SETTINGS_ROUNDED))
     if os.path.exists(os.path.join(pasta_global, "bright_mode.txt")):
         with open(os.path.join(pasta_global, "bright_mode.txt"), "r") as file:
             bright_mode = file.read().strip()
@@ -157,22 +156,17 @@ def inicial (page):
     # -----------------------------
     def abrir_dialogo_detalhes(evento):
 
-        dlg = ft.AlertDialog(
-            modal=True,
-            title=ft.Text(f"{evento['titulo']}"),
-            content=ft.Column([
+        dlg = ferramentas.dialog(page,
+            icone_d=ft.Icons.MENU_BOOK_ROUNDED,
+            icone_e=ft.Icons.CALENDAR_TODAY_ROUNDED,
+            titulo=f"{evento['titulo']}",
+            conteudo=[
                 ft.Text(f"Matéria: {evento['materia']}"),
                 ft.Text(f"Autor: {evento['autor']}"),
-                ft.Text(f"Registrado em: {evento['registrado_em']}"),
+                ft.Text(f"{evento['registrado_em']}"),
                 ft.Divider(),
                 ft.Text(evento["conteudo"], size=14),
-            ], tight=True),
-            actions=[
-                ft.TextButton("Fechar", on_click=lambda e: fechar_dialog(dlg))
             ]
-        )
-        dlg = ferramentas.dialog(
-            
         )
 
         page.open(dlg)
@@ -226,17 +220,17 @@ def inicial (page):
         campo_conteudo = ft.TextField(label="Conteúdo", multiline=True, width=300)
 
         def abrir_add_evento(e):
-            dlg2 = ft.AlertDialog(
-                modal=True,
-                title=ft.Text(f"Adicionar evento em {dia}/{mes}/{ano}"),
-                content=ft.Column([
+            dlg2 = ferramentas.dialog(
+                page,
+                titulo=f"Adicionar em {dia}/{mes}/{ano}",
+                icone_d=ft.Icons.ADD,
+                icone_e=ft.Icons.CALENDAR_TODAY_ROUNDED,
+                funcao_btn=lambda e: salvar_evento(dlg2),
+                texto_btn="Salvar",
+                conteudo=[
                     campo_titulo,
                     campo_materia,
                     campo_conteudo
-                ], tight=True),
-                actions=[
-                    ft.TextButton("Salvar", on_click=lambda e: salvar_evento(dlg2)),
-                    ft.TextButton("Cancelar", on_click=lambda e: fechar_dialog(dlg2))
                 ]
             )
             page.open(dlg2)
@@ -258,17 +252,17 @@ def inicial (page):
             gerar_calendario(ano, mes)
             fechar_dialog(dlg2)
 
-        dlg = ft.AlertDialog(
-            modal=True,
-            title=ft.Text(f"Eventos de {dia}/{mes}/{ano}"),
-            content=ft.Column([
+
+        dlg = ferramentas.dialog(
+            page,
+            titulo=f"Eventos de {dia}/{mes}/{ano}",
+            icone_d=ft.Icons.MENU_BOOK_ROUNDED,
+            icone_e=ft.Icons.CALENDAR_TODAY_ROUNDED,
+            funcao_btn=abrir_add_evento,
+            texto_btn="Adicionar terefa",
+            conteudo=[
                 ft.Text("Eventos cadastrados:", weight="bold"),
                 lista_eventos,
-                ft.Divider(),
-                ft.TextButton("Adicionar novo evento", icon=ft.Icons.ADD, on_click=abrir_add_evento)
-            ], tight=True),
-            actions=[
-                ft.TextButton("Fechar", on_click=lambda e: fechar_dialog(dlg))
             ]
         )
 
@@ -277,12 +271,34 @@ def inicial (page):
 
     # -----------------------------
     # DESENHAR CALENDÁRIO
+    def mes_anterior(e):
+        nonlocal mes_atual, ano_atual
+        mes_atual -= 1
+        if mes_atual < 1:
+            mes_atual = 12
+            ano_atual -= 1
+        gerar_calendario(ano_atual, mes_atual)
+
+    def proximo_mes(e):
+        nonlocal mes_atual, ano_atual
+        mes_atual += 1
+        if mes_atual > 12:
+            mes_atual = 1
+            ano_atual += 1
+        gerar_calendario(ano_atual, mes_atual)
     # -----------------------------
     def gerar_calendario(ano, mes):
         calendario_container.controls.clear()
 
-        titulo = ft.Text(f"{calendar.month_name[mes]} - {ano}",
-                         size=22, weight=ft.FontWeight.BOLD)
+        titulo = ft.Row(
+            expand=True,
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+            controls=[
+            ft.IconButton(icon=ft.Icons.ARROW_BACK_IOS_ROUNDED,on_click=mes_anterior),
+            ft.Text(f"{calendar.month_name[mes]} - {ano}", size=22, weight=ft.FontWeight.BOLD),
+            ft.IconButton(icon=ft.Icons.ARROW_FORWARD_IOS_ROUNDED,on_click=proximo_mes)
+            ]
+        )
 
         calendario_container.controls.append(titulo)
 
@@ -312,7 +328,7 @@ def inicial (page):
                             width=40,
                             height=40,
                             alignment=ft.alignment.center,
-                            bgcolor="#FFD27F" if tem_evento else None,
+                            bgcolor=ft.Colors.LIGHT_BLUE_900 if tem_evento else None,
                             border=ft.border.all(1, "#999"),
                             border_radius=5,
                             content=ft.Text(str(dia)),
@@ -326,43 +342,6 @@ def inicial (page):
     # -----------------------------
     # CONTROLES DE MÊS
     # -----------------------------
-    def mes_anterior(e):
-        nonlocal mes_atual, ano_atual
-        mes_atual -= 1
-        if mes_atual < 1:
-            mes_atual = 12
-            ano_atual -= 1
-        gerar_calendario(ano_atual, mes_atual)
-
-    def proximo_mes(e):
-        nonlocal mes_atual, ano_atual
-        mes_atual += 1
-        if mes_atual > 12:
-            mes_atual = 1
-            ano_atual += 1
-        gerar_calendario(ano_atual, mes_atual)
-    page.add(ft.Container(
-        width=page.width,
-        bgcolor=container_color,
-        padding=ft.padding.all(10),
-        border_radius=ft.border_radius.all(20),
-        alignment=ft.alignment.center,
-        content=ft.Row(
-                alignment=ft.MainAxisAlignment.CENTER,
-                controls=[
-                    ft.Column(
-                        alignment=ft.MainAxisAlignment.START,
-                        controls=[
-                            ft.Row(alignment=ft.MainAxisAlignment.CENTER,controls=[
-                                ft.ElevatedButton("← Mês anterior", on_click=mes_anterior),
-                                ft.ElevatedButton("Próximo mês →", on_click=proximo_mes)
-                        ]),
-                            calendario_container
-            ]
-        )
-            ]
-        )
-    ))
    
 
     gerar_calendario(ano_atual, mes_atual)
@@ -384,6 +363,53 @@ def inicial (page):
         )
     
     menu = [
-        
+        botoes_g(texto='Calculadora',icon=ft.Icons.CALCULATE_ROUNDED,funcao=lambda _:None),
+        botoes_g(texto='Horários de aula',icon=ft.Icons.CALENDAR_TODAY_ROUNDED,funcao=lambda _:horarios_aula.horario(page)),
+        botoes_g(texto='Notas',icon=ft.Icons.EDIT_NOTE_ROUNDED,funcao=lambda _:None),
+        botoes_g(texto='Links utilitários',icon=ft.Icons.INSERT_LINK_OUTLINED,funcao=lambda _:None),
     ]
+    page.add(
+        ft.Stack(
+            expand=True,
+            controls=[
+                ft.Column(
+                        scroll=ft.ScrollMode.AUTO,
+                        alignment=ft.MainAxisAlignment.START,
+                        controls=[
+                            ft.Text(f'\n',size=33),
+                            ft.Container(
+                                alignment=ft.alignment.center,
+                                content=ft.Row(
+                                    alignment=ft.MainAxisAlignment.CENTER,
+                                    controls=[
+                                        ft.Container(
+                                            bgcolor=container_color,
+                                            padding=ft.padding.all(10),
+                                            border_radius=ft.border_radius.all(20),
+                                            content=ft.Row(
+                                                alignment=ft.MainAxisAlignment.CENTER,
+                                                controls=[
+                                                    calendario_container
+                                                ]
+                                            )
+                                        )
+                                    ]
+                                )
+                            ),
+                            ft.GridView(
+                                expand=True,
+                                runs_count=2,
+                                max_extent=page.width/2,
+                                child_aspect_ratio=1,
+                                spacing=20,
+                                run_spacing=20,
+                                controls=menu
+                                        ),
+                            
+                    ]),
+                ferramentas.header(titulo="6X2_App", icone=ft.Icons.HOME_ROUNDED, page=page, destino=configs.configs,icone_btn=ft.Icons.SETTINGS_ROUNDED),
+                
+            ]
+        )
+    )
     page.update()

@@ -33,7 +33,7 @@ def main (page= Page):
         page.bgcolor = getattr(Colors, cor_pagina, Colors.BLACK)
         with open(arquivo_cor, "w") as file:
             file.write(cor_pagina)  # Salva só o nome da cor
-    # Verifica se todos os arquivos existem no diretório especificado
+    # Ver   i   ca se todos os arquivos existem no diretório especificado
     todos_existem = all(os.path.exists(os.path.join(pasta_global, arquivo)) for arquivo in arquivos)
 
     if not todos_existem:
