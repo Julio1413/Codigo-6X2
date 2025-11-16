@@ -1,7 +1,6 @@
 import os
 import flet as ft
 from pages import configs, ferramentas
-import pages
 import platform
 import json
 from datetime import datetime
@@ -82,6 +81,7 @@ def excluir_evento(evento):
 
 
 def inicial (page):
+    container_color = ferramentas.brightness(page)
     
     ano_atual = datetime.now().year
     mes_atual = datetime.now().month
@@ -171,6 +171,9 @@ def inicial (page):
                 ft.TextButton("Fechar", on_click=lambda e: fechar_dialog(dlg))
             ]
         )
+        dlg = ferramentas.dialog(
+            
+        )
 
         page.open(dlg)
         page.update()
@@ -201,7 +204,7 @@ def inicial (page):
                         padding=10,
                         border=ft.border.all(1, "#AAA"),
                         border_radius=10,
-                        bgcolor="#F2F2F2",
+                        bgcolor=container_color,
                         content=ft.Column([
                             ft.Text(f"{ev['titulo']} ({ev['materia']})",
                                    weight="bold", size=14),
@@ -338,14 +341,29 @@ def inicial (page):
             mes_atual = 1
             ano_atual += 1
         gerar_calendario(ano_atual, mes_atual)
-
-    page.add(
-        ft.Row([
-            ft.ElevatedButton("← Mês anterior", on_click=mes_anterior),
-            ft.ElevatedButton("Próximo mês →", on_click=proximo_mes)
-        ]),
-        calendario_container
-    )
+    page.add(ft.Container(
+        width=page.width,
+        bgcolor=container_color,
+        padding=ft.padding.all(10),
+        border_radius=ft.border_radius.all(20),
+        alignment=ft.alignment.center,
+        content=ft.Row(
+                alignment=ft.MainAxisAlignment.CENTER,
+                controls=[
+                    ft.Column(
+                        alignment=ft.MainAxisAlignment.START,
+                        controls=[
+                            ft.Row(alignment=ft.MainAxisAlignment.CENTER,controls=[
+                                ft.ElevatedButton("← Mês anterior", on_click=mes_anterior),
+                                ft.ElevatedButton("Próximo mês →", on_click=proximo_mes)
+                        ]),
+                            calendario_container
+            ]
+        )
+            ]
+        )
+    ))
+   
 
     gerar_calendario(ano_atual, mes_atual)
     # Costrução da página

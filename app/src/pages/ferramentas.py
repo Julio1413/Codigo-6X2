@@ -111,8 +111,8 @@ def container(page,
         )
 def dialog(page,
     titulo,
-    icone_d,
-    icone_e,
+    icone_e=None,
+    icone_d=None,
     funcao_btn='',
     texto_btn='',
     conteudo=[]
@@ -122,6 +122,7 @@ def dialog(page,
     
    
     dlg = ft.AlertDialog(
+        modal=True
         bgcolor=ft.Colors.with_opacity(0.0, ft.Colors.WHITE),
         barrier_color=ft.Colors.with_opacity(0.5, ft.Colors.BLACK),
         content=ft.Container(
