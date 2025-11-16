@@ -1,0 +1,1 @@
+print('Obrigado por usar o 6X2_App!')
