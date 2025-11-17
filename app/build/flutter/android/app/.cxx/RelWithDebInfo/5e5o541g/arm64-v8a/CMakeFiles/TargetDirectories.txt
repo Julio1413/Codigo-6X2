@@ -1,0 +1,2 @@
+/home/julio/Codigos/Codigo-6X2/app/build/flutter/android/app/.cxx/RelWithDebInfo/5e5o541g/arm64-v8a/CMakeFiles/edit_cache.dir
+/home/julio/Codigos/Codigo-6X2/app/build/flutter/android/app/.cxx/RelWithDebInfo/5e5o541g/arm64-v8a/CMakeFiles/rebuild_cache.dir

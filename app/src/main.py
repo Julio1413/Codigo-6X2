@@ -41,7 +41,8 @@ def main (page= Page):
             caminho_arquivo = os.path.join(pasta_global, arquivo)
             if os.path.exists(caminho_arquivo):
                 os.remove(caminho_arquivo)
-        login_page.login_page_1(page)
+        #login_page.login_page_1(page)
+        home.inicial(page)
     else:
         bem_vindo(page)
 
