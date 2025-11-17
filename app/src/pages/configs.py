@@ -1,5 +1,5 @@
 from flet import Page, Text, SnackBar, Colors, ThemeMode, KeyboardType, TextField, ElevatedButton, ButtonStyle, RoundedRectangleBorder, Icons, Column, Row, MainAxisAlignment, alignment, border_radius, Container, margin, padding, Divider, GridView, Brightness, CupertinoSlidingSegmentedButton, Icon, TextAlign, FontWeight
-import os, phonenumbers, re
+import os
 from pages import home, ferramentas
 
 def configs(page):
