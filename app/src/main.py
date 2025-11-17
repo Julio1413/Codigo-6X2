@@ -41,10 +41,7 @@ def main (page= Page):
             caminho_arquivo = os.path.join(pasta_global, arquivo)
             if os.path.exists(caminho_arquivo):
                 os.remove(caminho_arquivo)
-        with open(os.path.join(pasta_global, "INFO.txt"), "w") as file:
-            file.write("JULIO\n202518360003")
-        #login_page.login_page_1(page)
-        home.inicial(page)
+        login_page.login_page_1(page)
     else:
         bem_vindo(page)
 
