@@ -21,7 +21,11 @@ def main (page= Page):
     page.add(Text(f'\n'))
 
 
-    # Verifica se o arquivo de cor da página existe,sudo se não existir, cria com
+    # Verifica se o diretório global existe, se não, cria o diretório
+    if not os.path.exists(pasta_global):
+        os.makedirs(pasta_global)
+
+    # Verifica se o arquivo de cor da página existe, se não existir, cria com
     arquivo_cor = os.path.join(pasta_global, "page_bgcolor.txt")
     page.padding = 5
     if os.path.exists(arquivo_cor):

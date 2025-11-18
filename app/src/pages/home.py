@@ -31,10 +31,13 @@ elif sistema == "Linux":
 else:
     repo_global = r'C:\CubePy\6X2\repo'  # Valor padrão caso o sistema não seja identificado
     os.makedirs(repo_global, exist_ok=True)
-    
-with open (os.path.join(pasta_global, "INFO.txt"), "r") as f:
-    infos = f.readlines()
-    
+  
+if os.path.exists(os.path.join(pasta_global, "INFO.txt")):  
+    with open (os.path.join(pasta_global, "INFO.txt"), "r") as f:
+        infos = f.readlines()
+else:
+    infos = ["Desconhecido"]
+        
 ARQUIVO = os.path.join(repo_global,"eventos.json")
 AUTOR_GLOBAL = infos[0].replace('\n','')
 print(AUTOR_GLOBAL)
