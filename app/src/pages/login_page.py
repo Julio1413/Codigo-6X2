@@ -1,6 +1,6 @@
-from flet import Page, Text, SnackBar, Colors, ThemeMode, Icons, Column, Row, TextField, ElevatedButton, KeyboardType, FontWeight, MainAxisAlignment, IconButton, AlertDialog, Container, Divider, Dropdown, dropdown, TextStyle, margin, padding, border_radius, ElevatedButton, ButtonStyle, RoundedRectangleBorder, TextButton,Icon
+import flet as ft
 import datetime as dt
-import re, phonenumbers , os
+import os
 from pages import ferramentas, home
 
 #obter pasta global
@@ -12,31 +12,46 @@ def login_page_2(page):
 def login_page_1(page):
     page.clean()
     page.update()
-    page.bgcolor = Colors.LIGHT_BLUE
-    #botões
+    page.bgcolor = ft.Colors.LIGHT_BLUE
+    if os.path.exists(os.path.join(pasta_global, "bright_mode.txt")):
+        with open(os.path.join(pasta_global, "bright_mode.txt"), "r") as file:
+            bright_mode = file.read().strip()
+    else:
+        with open(os.path.join(pasta_global, "bright_mode.txt"), "w") as file:
+            file.write("0")
+        bright_mode = "0"
 
+    if bright_mode == "0":
+        page.theme_mode = ft.ThemeMode.SYSTEM
+    
+    elif bright_mode == "1":
+        page.theme_mode = ft.ThemeMode.DARK
+    elif bright_mode == "2":
+        page.theme_mode = ft.ThemeMode.LIGHT
+    #botões
+    def salvar_teste():
+        pass
+    
+    #campos de entrada
+    token= ft.TextField(label='Token de acesso', password=True)
+    link = ft.TextField(label='Link do repoitório', password=True)
     
     #construção da página
     page.add(
         ft.Column(controls=[ft.Container(height=90,
         content=ft.Container(alignment=ft.alignment.bottom_center,
-            padding=ft.padding.only(left=padding(), right=padding(),bottom=10),
+            padding=ft.padding.only(left=ferramentas.padding(), right=ferramentas.padding(),bottom=10),
             blur=(10,10),
             content=ft.Row(
                 controls=[
-                    ft.IconButton(
-                        icon_color=ft.Colors.WHITE,
-                        icon=icone_btn,
-                        on_click=lambda _:destino(page),
-                        icon_size=25,
-                    ),
+                    ft.Icon(name=ft.Icons.LOGIN_ROUNDED, color=ft.Colors.WHITE,size=30),
                     ft.Text(
-                        value=titulo,
+                        value='Login - 1°',
                         color=ft.Colors.WHITE,
                         size=20,
                         weight=ft.FontWeight.BOLD,
                     ),
-                    ft.Icon(name=icone, color=ft.Colors.WHITE,size=30),
+                    ft.Icon(name=ft.Icons.CALENDAR_MONTH_ROUNDED, color=ft.Colors.WHITE,size=30),
                 ],
                 alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
             ),
@@ -44,13 +59,21 @@ def login_page_1(page):
             margin=ft.margin.all(-10),
         ),
     ),
-    ft.Text(f'\n',size=1)
+    ft.Text(f'\n',size=10)
                                ])
 
     )
     page.add(ferramentas.container(page=page,controles=[
-        Text('  Seus dados serão salvos localmente.',size=15,weight=FontWeight.BOLD),
-         
-     
+        ft.Column(
+            expand=True,
+            alignment=ft.MainAxisAlignment.START,
+            controls=[
+                ft.Text('  Seus dados serão salvos localmente.',size=15,weight=ft.FontWeight.BOLD),
+                link,
+                token,
+                ft.Text('\n',expand=True),
+                ft.ElevatedButton(text='Proseguir',width=page.width,icon=ft.Icons.LOGIN_ROUNDED,on_click=lambda e: salvar_teste())
+            ]
+        )
     ]))
 

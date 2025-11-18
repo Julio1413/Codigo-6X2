@@ -104,7 +104,7 @@ def container(page,
             padding=ft.padding.all(17),
             border_radius=ft.border_radius.only(top_left=42, top_right=42),
             bgcolor=brightness(page),
-            alignment=ft.alignment.center,
+            alignment=ft.alignment.top_center,
             content=ft.Column(
                 scroll=ft.ScrollMode.AUTO,
                 alignment=ft.MainAxisAlignment.START,
