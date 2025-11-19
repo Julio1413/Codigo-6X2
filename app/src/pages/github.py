@@ -39,12 +39,12 @@ def clone_repo(token,link):
             os.makedirs(pasta_global)
 
         Repo.clone_from(REPO_URL, pasta_global)
-        return 1
+        return True
 
     except GitCommandError:
-        return 0
+        return False
     except Exception:
-        return 0
+        return False
 
 
 # ======================================================
