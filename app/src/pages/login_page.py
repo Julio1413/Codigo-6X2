@@ -34,7 +34,7 @@ def login_page_1(page):
     
     #campos de entrada
     token= ft.TextField(label='Token de acesso', password=True)
-    link = ft.TextField(label='Link do repoitório', password=True)
+    link = ft.TextField(label='Link do repoitório')
     
     #construção da página
     page.add(
@@ -72,7 +72,13 @@ def login_page_1(page):
                 link,
                 token,
                 ft.Text('\n',expand=True),
-                ft.ElevatedButton(text='Proseguir',width=page.width,icon=ft.Icons.LOGIN_ROUNDED,on_click=lambda e: salvar_teste())
+                ft.Container(height=page.height*0.37),
+                ft.ElevatedButton(text='Proseguir',width=page.width,icon=ft.Icons.LOGIN_ROUNDED,on_click=lambda e: salvar_teste()),
+               
+                ft.Row(alignment=ft.MainAxisAlignment.CENTER,controls=[
+                ft.Text('Error 404 - 2025',text_align=ft.TextAlign.CENTER,size=10,weight=ft.FontWeight.BOLD,color=ft.Colors.GREY),
+                    ]),
+                ft.Text('\n',size=1)
             ]
         )
     ]))
