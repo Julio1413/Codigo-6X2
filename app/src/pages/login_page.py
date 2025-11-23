@@ -101,14 +101,15 @@ def login_page_1(page):
     token= ft.TextField(label='Token de acesso', password=True)
     link = ft.TextField(label='Link do repoitório')
     def salvar_teste():
-        if github.clone_repo(token.value,link.value):
+        teste = github.clone_repo(token.value,link.value)
+        if teste == True:
             
             snack = ft.SnackBar(content=ft.Text('Login - 1 realizado com sucesso!'),bgcolor=ft.Colors.GREEN,open=True)
             page.open(snack)
             login_page_2(page)
             page.update()
         else:
-            snack = ft.SnackBar(content=ft.Text('Erro ao realizar login! Verifique suas credenciais.'),bgcolor=ft.Colors.RED,open=True)
+            snack = ft.SnackBar(content=ft.Text(f'Erro ao realizar login! Verifique suas credenciais.{teste}'),bgcolor=ft.Colors.RED,open=True)
             page.open(snack)
             page.update()
       

@@ -8,58 +8,8 @@ import calendar
 
 github.atualizar_repo()
 # Funções do calendário
-sistema = platform.system()
-
-# Windows
-if sistema == "Windows":
-    pasta = r"C:\CubePy\6X2"
-    os.makedirs(pasta, exist_ok=True)
-    pasta_global =  pasta
-
-# Android
-if "ANDROID_BOOTLOGO" in os.environ or (
-    sistema == "Linux" and "arm" in platform.uname().machine
-):
-    pasta = os.getenv("FLET_APP_STORAGE_DATA")
-
-    if not pasta:
-        pasta = "/data/data/" + (os.getenv("PYTHON_PACKAGE_NAME") or "app") + "/files"
-
-    os.makedirs(pasta, exist_ok=True)
-    pasta_global=  pasta
-
-# Linux normal
-if sistema == "Linux":
-    pasta = os.path.expanduser("~/Cubepy/6X2")
-    os.makedirs(pasta, exist_ok=True)
-    pasta_global =  pasta
-
-
-
-# Windows — repo deve ficar dentro do 6X2
-if sistema == "Windows":
-    repo = r"C:\CubePy\6X2\repo"
-    os.makedirs(repo, exist_ok=True)
-    repo_global = repo
-
-# Android — repo separado, mas dentro da pasta principal
-if "ANDROID_BOOTLOGO" in os.environ or (
-    sistema == "Linux" and "arm" in platform.uname().machine
-):
-    base = os.getenv("FLET_APP_STORAGE_DATA")
-
-    if not base:
-        base = "/data/data/" + (os.getenv("PYTHON_PACKAGE_NAME") or "app") + "/files"
-
-    repo = os.path.join(base, "repo")
-    os.makedirs(repo, exist_ok=True)
-    repo_global= repo
-
-# Linux normal — repo deve ficar dentro do 6X2
-if sistema == "Linux":
-    repo = os.path.expanduser("~/Cubepy/6X2/repo")
-    os.makedirs(repo, exist_ok=True)
-    repo_global= repo
+pasta_global = ferramentas.pasta_global()
+repo_global = ferramentas.repo_global()
   
 if os.path.exists(os.path.join(pasta_global, "INFO.txt")):  
     with open (os.path.join(pasta_global, "INFO.txt"), "r") as f:

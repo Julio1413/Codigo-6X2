@@ -33,7 +33,7 @@ def pasta_global():
         return pasta
 
     # Android
-    if "ANDROID_BOOTLOGO" in os.environ or (
+    elif "ANDROID_BOOTLOGO" in os.environ or (
         sistema == "Linux" and "arm" in platform.uname().machine
     ):
         pasta = os.getenv("FLET_APP_STORAGE_DATA")
@@ -44,8 +44,14 @@ def pasta_global():
         os.makedirs(pasta, exist_ok=True)
         return pasta
 
-    # Linux normal
-    if sistema == "Linux":
+    # macOS
+    elif sistema == "Darwin":
+        pasta = os.path.expanduser("~/Library/Application Support/CubePy/6X2")
+        os.makedirs(pasta, exist_ok=True)
+        return pasta
+
+    # Linux comum
+    elif sistema == "Linux":
         pasta = os.path.expanduser("~/Cubepy/6X2")
         os.makedirs(pasta, exist_ok=True)
         return pasta
@@ -61,7 +67,7 @@ def repo_global():
         return repo
 
     # Android — repo separado, mas dentro da pasta principal
-    if "ANDROID_BOOTLOGO" in os.environ or (
+    elif "ANDROID_BOOTLOGO" in os.environ or (
         sistema == "Linux" and "arm" in platform.uname().machine
     ):
         base = os.getenv("FLET_APP_STORAGE_DATA")
@@ -73,8 +79,14 @@ def repo_global():
         os.makedirs(repo, exist_ok=True)
         return repo
 
-    # Linux normal — repo deve ficar dentro do 6X2
-    if sistema == "Linux":
+    # macOS — repo dentro do app
+    elif sistema == "Darwin":
+        repo = os.path.expanduser("~/Library/Application Support/CubePy/6X2/repo")
+        os.makedirs(repo, exist_ok=True)
+        return repo
+
+    # Linux comum — repo deve ficar dentro do 6X2
+    elif sistema == "Linux":
         repo = os.path.expanduser("~/Cubepy/6X2/repo")
         os.makedirs(repo, exist_ok=True)
         return repo

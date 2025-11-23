@@ -83,7 +83,7 @@ def clone_repo(token, link):
             shutil.rmtree(repo_global)
         except:
             pass
-        return False
+        return e
 
 # ======================================================
 # FUNÇÃO: PULL
