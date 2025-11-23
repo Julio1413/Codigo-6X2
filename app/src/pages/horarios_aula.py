@@ -6,7 +6,10 @@ def horario(page):
     page.clean()
     page.add(ferramentas.header(titulo="Horários de aula", icone=ft.Icons.CALENDAR_TODAY_ROUNDED,page=page))
     page.add(ferramentas.container(page=page, controles=[
-        ft.ExpansionTile(
+        ft.Column(
+            alignment=ft.MainAxisAlignment.START,
+            controls=[
+                ft.ExpansionTile(
                 title=ft.Text("Segunda-feira", weight=ft.FontWeight.BOLD),
                 subtitle=ft.Text("7:00 - 12:10"),
                 affinity=ft.TileAffinity.PLATFORM,
@@ -77,6 +80,7 @@ def horario(page):
                     ft.Row([ft.Text('15:40 - 16:30 - Sociologia', weight=ft.FontWeight.W_600)], alignment=ft.MainAxisAlignment.START),
                 ],
             ),
-        ft.Placeholder(expand=True, color=ft.Colors.TRANSPARENT)
+            ]
+        )
     ]))
     page.update()

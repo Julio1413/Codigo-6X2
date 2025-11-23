@@ -8,7 +8,8 @@ authors = [
     { name = "Error 404" }
 ]
 dependencies = [
-  "flet==0.28.3"
+  "flet==0.28.3",
+  "dulwich==0.24.10",
 ]
 
 [tool.flet]

@@ -1,36 +1,65 @@
 import os
 import flet as ft
-from pages import configs, ferramentas, horarios_aula
+from pages import configs, ferramentas, horarios_aula,github
 import platform
 import json
 from datetime import datetime
 import calendar
+
+github.atualizar_repo()
 # Funções do calendário
 sistema = platform.system()
 
+# Windows
 if sistema == "Windows":
-    pasta_global = r'C:\CubePy\6X2'
-    os.makedirs(pasta_global, exist_ok=True)
-elif "ANDROID_BOOTLOGO" in os.environ or (sistema == "Linux" and "arm" in platform.uname().machine):
-    pasta_global = os.getenv("FLET_APP_STORAGE_DATA")  # Pasta de dados do app no Android
-elif sistema == "Linux":
-    pasta_global = os.path.expanduser("~/Cubepy/6X2")  # Diretório oculto no home do usuário
-    os.makedirs(pasta_global, exist_ok=True)
-else:
-    pasta_global = r'C:\CubePy\6X2'  # Valor padrão caso o sistema não seja identificado
-    os.makedirs(pasta_global, exist_ok=True)
-    
+    pasta = r"C:\CubePy\6X2"
+    os.makedirs(pasta, exist_ok=True)
+    pasta_global =  pasta
+
+# Android
+if "ANDROID_BOOTLOGO" in os.environ or (
+    sistema == "Linux" and "arm" in platform.uname().machine
+):
+    pasta = os.getenv("FLET_APP_STORAGE_DATA")
+
+    if not pasta:
+        pasta = "/data/data/" + (os.getenv("PYTHON_PACKAGE_NAME") or "app") + "/files"
+
+    os.makedirs(pasta, exist_ok=True)
+    pasta_global=  pasta
+
+# Linux normal
+if sistema == "Linux":
+    pasta = os.path.expanduser("~/Cubepy/6X2")
+    os.makedirs(pasta, exist_ok=True)
+    pasta_global =  pasta
+
+
+
+# Windows — repo deve ficar dentro do 6X2
 if sistema == "Windows":
-    repo_global = r'C:\CubePy\6X2\repo'
-    os.makedirs(repo_global, exist_ok=True)
-elif "ANDROID_BOOTLOGO" in os.environ or (sistema == "Linux" and "arm" in platform.uname().machine):
-    repo_global = os.getenv("FLET_APP_STORAGE_DATA/repo")  # Pasta de dados do app no Android
-elif sistema == "Linux":
-    repo_global = os.path.expanduser("~/Cubepy/6X2/repo")  # Diretório oculto no home do usuário
-    os.makedirs(repo_global, exist_ok=True)
-else:
-    repo_global = r'C:\CubePy\6X2\repo'  # Valor padrão caso o sistema não seja identificado
-    os.makedirs(repo_global, exist_ok=True)
+    repo = r"C:\CubePy\6X2\repo"
+    os.makedirs(repo, exist_ok=True)
+    repo_global = repo
+
+# Android — repo separado, mas dentro da pasta principal
+if "ANDROID_BOOTLOGO" in os.environ or (
+    sistema == "Linux" and "arm" in platform.uname().machine
+):
+    base = os.getenv("FLET_APP_STORAGE_DATA")
+
+    if not base:
+        base = "/data/data/" + (os.getenv("PYTHON_PACKAGE_NAME") or "app") + "/files"
+
+    repo = os.path.join(base, "repo")
+    os.makedirs(repo, exist_ok=True)
+    repo_global= repo
+
+# Linux normal — repo deve ficar dentro do 6X2
+if sistema == "Linux":
+    repo = os.path.expanduser("~/Cubepy/6X2/repo")
+    os.makedirs(repo, exist_ok=True)
+    repo_global= repo
   
 if os.path.exists(os.path.join(pasta_global, "INFO.txt")):  
     with open (os.path.join(pasta_global, "INFO.txt"), "r") as f:
@@ -41,19 +70,41 @@ else:
 ARQUIVO = os.path.join(repo_global,"eventos.json")
 AUTOR_GLOBAL = infos[0].replace('\n','')
 print(AUTOR_GLOBAL)
-
+print("Conteúdo atual do JSON:")
+if os.path.exists(ARQUIVO):
+    with open(ARQUIVO, "r") as f:
+        print(f.read())
+else:
+    print("Arquivo não existe")
 def carregar_eventos():
+    # Se o arquivo não existir, cria corretamente
     if not os.path.exists(ARQUIVO):
         with open(ARQUIVO, "w") as f:
             json.dump({"eventos": []}, f, indent=4)
+        return {"eventos": []}
 
-    with open(ARQUIVO, "r") as f:
-        return json.load(f)
+    # Tenta carregar normalmente
+    try:
+        with open(ARQUIVO, "r") as f:
+            dados = json.load(f)
+
+        # Se faltar a chave ou não for lista → corrige
+        if "eventos" not in dados or not isinstance(dados["eventos"], list):
+            raise ValueError
+
+        return dados
+
+    except Exception:
+        # Corrige JSON quebrado
+        with open(ARQUIVO, "w") as f:
+            json.dump({"eventos": []}, f, indent=4)
+        return {"eventos": []}
 
 
 def salvar_eventos(dados):
     with open(ARQUIVO, "w") as f:
         json.dump(dados, f, indent=4)
+    github.commit_push()
 
 
 def adicionar_evento(data, materia, titulo, autor, conteudo):
@@ -254,6 +305,7 @@ def inicial (page):
             atualizar_lista()
             gerar_calendario(ano, mes)
             fechar_dialog(dlg2)
+            page.update()
 
 
         dlg = ferramentas.dialog(

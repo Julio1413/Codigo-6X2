@@ -1,12 +1,81 @@
 import flet as ft
 import datetime as dt
 import os
-from pages import ferramentas, home
+from pages import ferramentas, home,github
 
 #obter pasta global
 pasta_global = ferramentas.pasta_global()
+repo_global = ferramentas.repo_global()
 def login_page_2(page):
+    def validacao (nome,matricula):
+        if not nome or not matricula:
+            snack = ft.SnackBar(content=ft.Text('Por favor, preencha todos os campos.'),bgcolor=ft.Colors.RED,open=True)
+            page.open(snack)
+            page.update()
+        else:
+            with open(os.path.join(repo_global,'ID.txt'),'r') as f:
+                matriculas_validas = [line.strip() for line in f.readlines()]
+                
+            with open(os.path.join(repo_global,'NOMES.txt'),'r') as f:
+                nomes_validos = [line.strip() for line in f.readlines()]
+                
+                
+            if matricula in matriculas_validas and nome in nomes_validos:
+                index = matriculas_validas.index(matricula)
+                print(index)
+                if nomes_validos[index] == nome and matriculas_validas[index] == matricula:
+                    with open(os.path.join(pasta_global,'INFO.txt'),'w') as f:
+                        f.write(f'{nome}\n{matricula}')
+                    snack = ft.SnackBar(content=ft.Text('Login - 2 realizado com sucesso!'),bgcolor=ft.Colors.GREEN,open=True)
+                    page.open(snack)
+                    home.inicial(page)
+                    page.update()
+                    return
+                
+            else:
+                snack = ft.SnackBar(content=ft.Text('Matrícula ou nome inválido.'),bgcolor=ft.Colors.RED,open=True)
+                page.open(snack)
+                page.update()
+                return
     page.clean()
+    page.update()
+    page.add(
+        ft.Column(controls=[ft.Container(height=90,
+        content=ft.Container(alignment=ft.alignment.bottom_center,
+            padding=ft.padding.only(left=ferramentas.padding(), right=ferramentas.padding(),bottom=10),
+            blur=(10,10),
+            content=ft.Row(
+                controls=[
+                    ft.Icon(name=ft.Icons.LOGIN_ROUNDED, color=ft.Colors.WHITE,size=30),
+                    ft.Text(
+                        value='Login - 2',
+                        color=ft.Colors.WHITE,
+                        size=20,
+                        weight=ft.FontWeight.BOLD,
+                    ),
+                    ft.Icon(name=ft.Icons.CALENDAR_MONTH_ROUNDED, color=ft.Colors.WHITE,size=30),
+                ],
+                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+            ),
+            height=50,
+            margin=ft.margin.all(-10),
+        ),
+    ),
+    ft.Text(f'\n',size=10)]))
+    nome = ft.TextField(label='Primeiro nome:',hint_text='Biroska')
+    matricula = ft.TextField(label='Número de matrícula: 200008360000')
+    page.add(
+        ferramentas.container(page=page,controles=[
+            nome,
+            matricula,
+            ft.Text('\n',expand=True),
+            ft.Container(height=page.height*0.37),
+            ft.ElevatedButton(text='Proseguir',width=page.width,icon=ft.Icons.LOGIN_ROUNDED,on_click=lambda e: validacao(nome.value,matricula.value)),
+            ft.Row(alignment=ft.MainAxisAlignment.CENTER,controls=[
+                ft.Text('404 Studios - 2025',text_align=ft.TextAlign.CENTER,size=10,weight=ft.FontWeight.BOLD,color=ft.Colors.GREY),
+                    ]),
+                ft.Text('\n',size=1)
+        ]))
     page.update()
 
 def login_page_1(page):
@@ -29,12 +98,21 @@ def login_page_1(page):
     elif bright_mode == "2":
         page.theme_mode = ft.ThemeMode.LIGHT
     #botões
-    def salvar_teste():
-        pass
-    
-    #campos de entrada
     token= ft.TextField(label='Token de acesso', password=True)
     link = ft.TextField(label='Link do repoitório')
+    def salvar_teste():
+        if github.clone_repo(token.value,link.value):
+            
+            snack = ft.SnackBar(content=ft.Text('Login - 1 realizado com sucesso!'),bgcolor=ft.Colors.GREEN,open=True)
+            page.open(snack)
+            login_page_2(page)
+            page.update()
+        else:
+            snack = ft.SnackBar(content=ft.Text('Erro ao realizar login! Verifique suas credenciais.'),bgcolor=ft.Colors.RED,open=True)
+            page.open(snack)
+            page.update()
+      
+    
     
     #construção da página
     page.add(
@@ -46,7 +124,7 @@ def login_page_1(page):
                 controls=[
                     ft.Icon(name=ft.Icons.LOGIN_ROUNDED, color=ft.Colors.WHITE,size=30),
                     ft.Text(
-                        value='Login - 1°',
+                        value='Login - 1',
                         color=ft.Colors.WHITE,
                         size=20,
                         weight=ft.FontWeight.BOLD,
@@ -76,7 +154,7 @@ def login_page_1(page):
                 ft.ElevatedButton(text='Proseguir',width=page.width,icon=ft.Icons.LOGIN_ROUNDED,on_click=lambda e: salvar_teste()),
                
                 ft.Row(alignment=ft.MainAxisAlignment.CENTER,controls=[
-                ft.Text('Error 404 - 2025',text_align=ft.TextAlign.CENTER,size=10,weight=ft.FontWeight.BOLD,color=ft.Colors.GREY),
+                ft.Text('404 Studios - 2025',text_align=ft.TextAlign.CENTER,size=10,weight=ft.FontWeight.BOLD,color=ft.Colors.GREY),
                     ]),
                 ft.Text('\n',size=1)
             ]

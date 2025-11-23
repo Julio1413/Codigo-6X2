@@ -1,4 +1,3 @@
-from pages import home
 from flet import Text, SnackBar, Colors, TextField, KeyboardType, ElevatedButton, ButtonStyle, RoundedRectangleBorder, Icons
 import platform, os
 #padding geral da ui
@@ -27,44 +26,72 @@ def brightness_text(page):
 def pasta_global():
     sistema = platform.system()
 
+    # Windows
     if sistema == "Windows":
-        pasta_global = r'C:\CubePy\6X2'
-        os.makedirs(pasta_global, exist_ok=True)
-    elif "ANDROID_BOOTLOGO" in os.environ or (sistema == "Linux" and "arm" in platform.uname().machine):
-        pasta_global = os.getenv("FLET_APP_STORAGE_DATA")  # Pasta de dados do app no Android
-    elif sistema == "Linux":
-        pasta_global = os.path.expanduser("~/Cubepy/6X2")  # Diretório oculto no home do usuário
-        os.makedirs(pasta_global, exist_ok=True)
-    else:
-        pasta_global = r'C:\CubePy\6X2'  # Valor padrão caso o sistema não seja identificado
-        os.makedirs(pasta_global, exist_ok=True)
-    return pasta_global
+        pasta = r"C:\CubePy\6X2"
+        os.makedirs(pasta, exist_ok=True)
+        return pasta
+
+    # Android
+    if "ANDROID_BOOTLOGO" in os.environ or (
+        sistema == "Linux" and "arm" in platform.uname().machine
+    ):
+        pasta = os.getenv("FLET_APP_STORAGE_DATA")
+
+        if not pasta:
+            pasta = "/data/data/" + (os.getenv("PYTHON_PACKAGE_NAME") or "app") + "/files"
+
+        os.makedirs(pasta, exist_ok=True)
+        return pasta
+
+    # Linux normal
+    if sistema == "Linux":
+        pasta = os.path.expanduser("~/Cubepy/6X2")
+        os.makedirs(pasta, exist_ok=True)
+        return pasta
 
 
 def repo_global():
     sistema = platform.system()
 
+    # Windows — repo deve ficar dentro do 6X2
     if sistema == "Windows":
-        repo_global = r'C:\CubePy\6X2\repo'
-        os.makedirs(repo_global, exist_ok=True)
-    elif "ANDROID_BOOTLOGO" in os.environ or (sistema == "Linux" and "arm" in platform.uname().machine):
-        repo_global = os.getenv("FLET_APP_STORAGE_DATA/repo")  # Pasta de dados do app no Android
-    elif sistema == "Linux":
-        repo_global = os.path.expanduser("~/Cubepy/6X2/repo")  # Diretório oculto no home do usuário
-        os.makedirs(repo_global, exist_ok=True)
-    else:
-        repo_global = r'C:\CubePy\6X2\repo'  # Valor padrão caso o sistema não seja identificado
-        os.makedirs(repo_global, exist_ok=True)
-    return repo_global
+        repo = r"C:\CubePy\6X2\repo"
+        os.makedirs(repo, exist_ok=True)
+        return repo
+
+    # Android — repo separado, mas dentro da pasta principal
+    if "ANDROID_BOOTLOGO" in os.environ or (
+        sistema == "Linux" and "arm" in platform.uname().machine
+    ):
+        base = os.getenv("FLET_APP_STORAGE_DATA")
+
+        if not base:
+            base = "/data/data/" + (os.getenv("PYTHON_PACKAGE_NAME") or "app") + "/files"
+
+        repo = os.path.join(base, "repo")
+        os.makedirs(repo, exist_ok=True)
+        return repo
+
+    # Linux normal — repo deve ficar dentro do 6X2
+    if sistema == "Linux":
+        repo = os.path.expanduser("~/Cubepy/6X2/repo")
+        os.makedirs(repo, exist_ok=True)
+        return repo
+
 
 #ferramentas de interface (header e container)
 def header( 
             titulo,
             icone,
             page,
-            destino=home.inicial,
+            destino=None,
             icone_btn=ft.Icons.ARROW_BACK_IOS_ROUNDED,
            ):
+    # Importação obrigatória de home
+    from pages import home
+    if destino is None:
+        destino = home.inicial
     return ft.Column(controls=[ft.Container(height=90,
         content=ft.Container(alignment=ft.alignment.bottom_center,
             padding=ft.padding.only(left=padding(), right=padding(),bottom=10),
