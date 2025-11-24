@@ -1,0 +1,101 @@
+.
+├── app
+│   ├── main.py
+│   ├── pyproject.toml
+│   ├── README.md
+│   ├── src
+│   │   ├── dulwich
+│   │   │   ├── annotate.py
+│   │   │   ├── approxidate.py
+│   │   │   ├── archive.py
+│   │   │   ├── attrs.py
+│   │   │   ├── bisect.py
+│   │   │   ├── bitmap.py
+│   │   │   ├── bundle.py
+│   │   │   ├── client.py
+│   │   │   ├── cli.py
+│   │   │   ├── cloud
+│   │   │   │   ├── gcs.py
+│   │   │   │   └── __init__.py
+│   │   │   ├── commit_graph.py
+│   │   │   ├── config.py
+│   │   │   ├── contrib
+│   │   │   │   ├── diffstat.py
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── paramiko_vendor.py
+│   │   │   │   ├── README.swift.rst
+│   │   │   │   ├── release_robot.py
+│   │   │   │   ├── requests_vendor.py
+│   │   │   │   └── swift.py
+│   │   │   ├── credentials.py
+│   │   │   ├── diff.py
+│   │   │   ├── diff_tree.py
+│   │   │   ├── dumb.py
+│   │   │   ├── errors.py
+│   │   │   ├── fastexport.py
+│   │   │   ├── file.py
+│   │   │   ├── filter_branch.py
+│   │   │   ├── filters.py
+│   │   │   ├── gc.py
+│   │   │   ├── graph.py
+│   │   │   ├── greenthreads.py
+│   │   │   ├── hooks.py
+│   │   │   ├── ignore.py
+│   │   │   ├── index.py
+│   │   │   ├── __init__.py
+│   │   │   ├── lfs.py
+│   │   │   ├── lfs_server.py
+│   │   │   ├── line_ending.py
+│   │   │   ├── log_utils.py
+│   │   │   ├── lru_cache.py
+│   │   │   ├── mailmap.py
+│   │   │   ├── __main__.py
+│   │   │   ├── maintenance.py
+│   │   │   ├── mbox.py
+│   │   │   ├── merge_drivers.py
+│   │   │   ├── merge.py
+│   │   │   ├── notes.py
+│   │   │   ├── objectspec.py
+│   │   │   ├── objects.py
+│   │   │   ├── object_store.py
+│   │   │   ├── pack.py
+│   │   │   ├── patch.py
+│   │   │   ├── porcelain.py
+│   │   │   ├── protocol.py
+│   │   │   ├── py.typed
+│   │   │   ├── rebase.py
+│   │   │   ├── reflog.py
+│   │   │   ├── refs.py
+│   │   │   ├── reftable.py
+│   │   │   ├── repo.py
+│   │   │   ├── server.py
+│   │   │   ├── sparse_patterns.py
+│   │   │   ├── stash.py
+│   │   │   ├── stripspace.py
+│   │   │   ├── submodule.py
+│   │   │   ├── tests
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── test_object_store.py
+│   │   │   │   └── utils.py
+│   │   │   ├── trailers.py
+│   │   │   ├── walk.py
+│   │   │   ├── web.py
+│   │   │   ├── whitespace.py
+│   │   │   └── worktree.py
+│   │   ├── main.py
+│   │   └── pages
+│   │       ├── calculadora.py
+│   │       ├── configs.py
+│   │       ├── ferramentas.py
+│   │       ├── github.py
+│   │       ├── home.py
+│   │       ├── horarios_aula.py
+│   │       ├── __init__.py
+│   │       └── login_page.py
+│   └── storage
+│       ├── data
+│       └── temp
+├── estrutura.txt
+└── README.md
+
+11 directories, 88 files
