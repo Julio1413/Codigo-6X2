@@ -19,7 +19,7 @@ def main (page= ft.Page):
     page.window.maximizable = True
     page.window.resizable = True
     page.scroll = 'none'
-    arquivos = ['INFO.txt']
+    arquivos = ['INFO.txt', 'TOKEN.txt', 'LINK.txt']
     page.add(ft.Text(f'\n'))
 
 

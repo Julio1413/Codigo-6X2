@@ -85,6 +85,28 @@ def excluir_evento(evento):
 
 
 def inicial (page):
+    dlg = ft.AlertDialog(
+        modal=True,
+        bgcolor=ft.Colors.TRANSPARENT,
+        content=ft.Container(
+            bgcolor=ft.Colors.TRANSPARENT,
+            margin=ft.margin.only(top=6,left=7,right=7,bottom=4),
+            border_radius=ft.border_radius.all(20),
+            expand=True,
+            height=150,
+            width=300,
+            padding=ft.padding.all(6),
+            content=ft.Column(
+                alignment=ft.MainAxisAlignment.CENTER,
+                controls=[
+                    ft.ProgressRing(width=50, height=50, color=ft.Colors.BLUE)
+                ]
+            )
+        )
+    )
+    #page.open(dlg)
+    page.update()
+    github.atualizar_repo()
     container_color = ferramentas.brightness(page)
     
     ano_atual = datetime.now().year
@@ -109,6 +131,8 @@ def inicial (page):
         ]
     pasta_global = ferramentas.pasta_global()
     page.clean()
+   #page.overlay.clear()
+    #page.update()
     if os.path.exists(os.path.join(pasta_global, "bright_mode.txt")):
         with open(os.path.join(pasta_global, "bright_mode.txt"), "r") as file:
             bright_mode = file.read().strip()

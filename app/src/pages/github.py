@@ -46,6 +46,14 @@ def salvar_token(token: str,link:str):
 # ======================================================
 # FUNÇÃO: OBTER TOKEN
 # ======================================================
+def obter_link():
+    try:
+        if os.path.exists(LINK_FILE):
+            with open(LINK_FILE, "r") as f:
+                return f.read().strip()
+        return None
+    except:
+        return None
 def obter_token():
     try:
         if os.path.exists(TOKEN_FILE):
@@ -93,15 +101,9 @@ def atualizar_repo():
     try:
         repo = Repo(repo_global)
         token = obter_token()
-
-        cfg = repo.get_config()
-        remote_url = cfg.get((b'remote "origin"',), b'url').decode()
-
-        username = "git"
-        clean_link = remote_url.replace("https://", "").split("@")[-1]
-        remote_url_fixed = f"https://{username}:{token}@{clean_link}"
-
-        porcelain.pull(repo, remote_url_fixed.encode())
+        link = obter_link()
+        shutil.rmtree(repo_global)
+        clone_repo(token, link)
         return True
 
     except Exception as e:
