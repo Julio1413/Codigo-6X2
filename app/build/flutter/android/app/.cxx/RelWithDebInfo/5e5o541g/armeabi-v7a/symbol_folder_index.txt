@@ -1,1 +1,0 @@
-/home/julio/Codigos/Codigo-6X2/app/build/flutter/build/app/intermediates/cxx/RelWithDebInfo/5e5o541g/obj/armeabi-v7a
