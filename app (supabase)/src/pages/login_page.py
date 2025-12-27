@@ -1,11 +1,16 @@
 import flet as ft
 import datetime as dt
 import os
-from pages import ferramentas, home,github
+from pages import ferramentas, home,supabase
+import json
 
+def login_sucesso(page):
+    page.clean()
+    page.controls.clear()
+    page.update()
+    home.inicial(page)
 #obter pasta global
 pasta_global = ferramentas.pasta_global()
-repo_global = ferramentas.repo_global()
 def login_page_2(page):
     def validacao (nome,matricula):
         if not nome or not matricula:
@@ -13,25 +18,17 @@ def login_page_2(page):
             page.open(snack)
             page.update()
         else:
-            with open(os.path.join(repo_global,'ID.txt'),'r') as f:
-                matriculas_validas = [line.strip() for line in f.readlines()]
-                
-            with open(os.path.join(repo_global,'NOMES.txt'),'r') as f:
-                nomes_validos = [line.strip() for line in f.readlines()]
-                
-                
-            if matricula in matriculas_validas and nome in nomes_validos:
-                index = matriculas_validas.index(matricula)
-                print(index)
-                if nomes_validos[index] == nome and matriculas_validas[index] == matricula:
-                    with open(os.path.join(pasta_global,'INFO.txt'),'w') as f:
-                        f.write(f'{nome}\n{matricula}')
+            dados_login = supabase.ler_tabela('login')
+            print(json.dumps(dados_login,indent=4))
+            for usuario in range (len(dados_login)):
+                if dados_login[usuario]['nome'].split()[0].lower() == nome.lower() and str(dados_login[usuario]['matricula']) == str(matricula):
+                    with open (os.path.join(pasta_global,'INFO.txt'),'w') as f:
+                        f.write(f"{nome}\n{matricula}\n{usuario}")
                     snack = ft.SnackBar(content=ft.Text('Login - 2 realizado com sucesso!'),bgcolor=ft.Colors.GREEN,open=True)
                     page.open(snack)
                     home.inicial(page)
                     page.update()
-                    return
-                
+                    break
             else:
                 snack = ft.SnackBar(content=ft.Text('Matrícula ou nome inválido.'),bgcolor=ft.Colors.RED,open=True)
                 page.open(snack)
@@ -101,15 +98,21 @@ def login_page_1(page):
     token= ft.TextField(label='Token de acesso', password=True)
     link = ft.TextField(label='Link do repoitório')
     def salvar_teste():
-        teste = github.clone_repo(token.value,link.value)
-        if teste == True:
+        if supabase.testar_conexao(link.value,token.value):
             
             snack = ft.SnackBar(content=ft.Text('Login - 1 realizado com sucesso!'),bgcolor=ft.Colors.GREEN,open=True)
             page.open(snack)
+            
+            with open(os.path.join(pasta_global,'TOKEN_FILE.txt'),'w') as f:
+                f.write(token.value)
+            with open(os.path.join(pasta_global,'URL_FILE.txt'),'w') as f:
+                f.write(link.value)
+                
             login_page_2(page)
             page.update()
+            
         else:
-            snack = ft.SnackBar(content=ft.Text(f'Erro ao realizar login! Verifique suas credenciais.{teste}'),bgcolor=ft.Colors.RED,open=True)
+            snack = ft.SnackBar(content=ft.Text(f'Erro ao realizar login! Verifique suas credenciais.'),bgcolor=ft.Colors.RED,open=True)
             page.open(snack)
             page.update()
       

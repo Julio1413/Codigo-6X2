@@ -1,10 +1,9 @@
 import flet as ft
 import os
-from pages import ferramentas,home,login_page,github
+from pages import ferramentas,home,login_page,supabase
 import shutil
 
 pasta_global = ferramentas.pasta_global()
-repo_global = ferramentas.repo_global()
 
 #paginas de boas vindas
 def bem_vindo(page):
@@ -19,7 +18,7 @@ def main (page= ft.Page):
     page.window.maximizable = True
     page.window.resizable = True
     page.scroll = 'none'
-    arquivos = ['INFO.txt', 'TOKEN.txt', 'LINK.txt']
+    arquivos = ['INFO.txt', 'URL_FILE.txt', 'TOKEN_FILE.txt']
     page.add(ft.Text(f'\n'))
 
 
@@ -42,48 +41,42 @@ def main (page= ft.Page):
     # Ver   i   ca se todos os arquivos existem no diretório especificado
     todos_existem = all(os.path.exists(os.path.join(pasta_global, arquivo)) for arquivo in arquivos)
 
-    if not todos_existem:
-        if os.path.exists(os.path.join(ferramentas.repo_global())):
-            shutil.rmtree(os.path.join(ferramentas.repo_global()))
-        
+    if not todos_existem:        
         for arquivo in arquivos:
             caminho_arquivo = os.path.join(pasta_global, arquivo)
             if os.path.exists(caminho_arquivo):
                 os.remove(caminho_arquivo)
         login_page.login_page_1(page)
     else:
-        #do usuario
-        with open (os.path.join(pasta_global,'INFO.txt'),'r') as f:
-            nome = f.readlines()[0].replace('\n','')
-        with open (os.path.join(pasta_global,'INFO.txt'),'r') as f:
-            matricula = f.readlines()[1].replace('\n','')
-        # Validos
-        with open(os.path.join(repo_global,'ID.txt'),'r') as f:
-            matriculas_validas = [line.strip() for line in f.readlines()]
-                
-        with open(os.path.join(repo_global,'NOMES.txt'),'r') as f:
-            nomes_validos = [line.strip() for line in f.readlines()]
-            
-            
-        if matricula in matriculas_validas and nome in nomes_validos:
-            index = matriculas_validas.index(matricula)
-            print(index)
-            if nomes_validos[index] == nome and matriculas_validas[index] == matricula:
-                with open(os.path.join(pasta_global,'INFO.txt'),'w') as f:
-                    f.write(f'{nome}\n{matricula}')
-                snack = ft.SnackBar(content=ft.Text('Login - 2 realizado com sucesso!'),bgcolor=ft.Colors.GREEN,open=True)
-                page.open(snack)
-                home.inicial(page)
-                page.update()
-                return
-            
-        else:
-            snack = ft.SnackBar(content=ft.Text('Matrícula ou nome inválido.'),bgcolor=ft.Colors.RED,open=True)
-            page.open(snack)
-            os.remove(os.path.join(pasta_global,'INFO.txt'))
-            shutil.rmtree(os.path.join(ferramentas.repo_global()))
-            login_page.login_page_1(page)
-            page.update()
-            page.update()
+        # Leitura correta do INFO.txt
+        with open(os.path.join(pasta_global, 'INFO.txt'), 'r') as f:
+            linhas = f.read().splitlines()
+        nome = linhas[0]
+        matricula = linhas[1]
+        id = linhas[2]  # string UUID
 
+        with open(os.path.join(pasta_global, 'TOKEN_FILE.txt'), 'r') as f:
+            token = f.read().splitlines()[0]
+        with open(os.path.join(pasta_global, 'URL_FILE.txt'), 'r') as f:
+            url = f.read()
+
+        usuario = supabase.ler_tabela(
+            "login",
+            filtros={"id": f"eq.{id}"}
+        )
+
+        if (
+            supabase.testar_conexao(url, token)
+            and usuario
+            and usuario[0]["matricula"] == matricula
+            and usuario[0]["nome"] == nome
+        ):
+            bem_vindo(page)
+        else:
+            for arquivo in arquivos:
+                caminho_arquivo = os.path.join(pasta_global, arquivo)
+                if os.path.exists(caminho_arquivo):
+                    os.remove(caminho_arquivo)
+            login_page.login_page_1(page)
+        
 ft.app(target=main,assets_dir='assets')

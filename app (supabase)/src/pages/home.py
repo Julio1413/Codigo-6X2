@@ -1,87 +1,47 @@
+
 import os
 import flet as ft
-from pages import configs, ferramentas, horarios_aula,github
+from pages import configs, ferramentas, horarios_aula, supabase
 import platform
-import json
 from datetime import datetime
 import calendar
 
-github.atualizar_repo()
 # Funções do calendário
 pasta_global = ferramentas.pasta_global()
-repo_global = ferramentas.repo_global()
-  
-if os.path.exists(os.path.join(pasta_global, "INFO.txt")):  
-    with open (os.path.join(pasta_global, "INFO.txt"), "r") as f:
-        infos = f.readlines()
-else:
-    infos = ["Desconhecido"]
-        
-ARQUIVO = os.path.join(repo_global,"eventos.json")
-AUTOR_GLOBAL = infos[0].replace('\n','')
-print(AUTOR_GLOBAL)
-print("Conteúdo atual do JSON:")
-if os.path.exists(ARQUIVO):
-    with open(ARQUIVO, "r") as f:
-        print(f.read())
-else:
-    print("Arquivo não existe")
-def carregar_eventos():
-    # Se o arquivo não existir, cria corretamente
-    if not os.path.exists(ARQUIVO):
-        with open(ARQUIVO, "w") as f:
-            json.dump({"eventos": []}, f, indent=4)
-        return {"eventos": []}
-
-    # Tenta carregar normalmente
-    try:
-        with open(ARQUIVO, "r") as f:
-            dados = json.load(f)
-
-        # Se faltar a chave ou não for lista → corrige
-        if "eventos" not in dados or not isinstance(dados["eventos"], list):
-            raise ValueError
-
-        return dados
-
-    except Exception:
-        # Corrige JSON quebrado
-        with open(ARQUIVO, "w") as f:
-            json.dump({"eventos": []}, f, indent=4)
-        return {"eventos": []}
+with open(os.path.join(pasta_global, 'INFO.txt'), 'r') as f:
+    linhas = f.read().splitlines()
+    nome = linhas[0]
+    matricula = linhas[1]
+    id_usuario = linhas[2]
 
 
-def salvar_eventos(dados):
-    with open(ARQUIVO, "w") as f:
-        json.dump(dados, f, indent=4)
-    github.commit_push()
 
+# --- NOVAS FUNÇÕES OBRIGATÓRIAS (APENAS SUPABASE) ---
+def listar_eventos(data):
+    return supabase.ler_tabela(
+        "eventos",
+        filtros={"data": f"eq.{data}"}
+    ) or []
 
 def adicionar_evento(data, materia, titulo, autor, conteudo):
-    dados = carregar_eventos()
     registrado = datetime.now().strftime("%d/%m/%Y %H:%M")
-
-    dados["eventos"].append({
-        "data": data,
-        "materia": materia,
-        "titulo": titulo,
-        "autor": autor,
-        "conteudo": conteudo,
-        "registrado_em": registrado
-    })
-
-    salvar_eventos(dados)
-
-
-def listar_eventos(data):
-    dados = carregar_eventos()
-    return [ev for ev in dados["eventos"] if ev["data"] == data]
-
+    supabase.inserir_linha(
+        "eventos",
+        {
+            "data": data,
+            "materia": materia,
+            "titulo": titulo,
+            "autor": autor,
+            "conteudo": conteudo,
+            "registrado_em": registrado
+        }
+    )
 
 def excluir_evento(evento):
-    dados = carregar_eventos()
-    dados["eventos"].remove(evento)
-    salvar_eventos(dados)
+    supabase.excluir_linha(
+        "eventos",
+        filtros={"id": f"eq.{evento['id']}"}
+    )
 
 
 def inicial (page):
@@ -106,7 +66,6 @@ def inicial (page):
     )
     #page.open(dlg)
     page.update()
-    github.atualizar_repo()
     container_color = ferramentas.brightness(page)
     
     ano_atual = datetime.now().year
@@ -169,14 +128,12 @@ def inicial (page):
     # MARCAR DIAS COM EVENTO
     # -----------------------------
     def marcar_dias(ano, mes):
-        dados = carregar_eventos()
+        dados = supabase.ler_tabela("eventos") or []
         dias = set()
-
-        for ev in dados["eventos"]:
+        for ev in dados:
             y, m, d = map(int, ev["data"].split("-"))
             if y == ano and m == mes:
                 dias.add(d)
-
         return dias
 
     # -----------------------------
@@ -205,22 +162,18 @@ def inicial (page):
     # -----------------------------
     def abrir_dialogo_dia(ano, mes, dia):
         data_str = f"{ano}-{mes:02d}-{dia:02d}"
-
         lista_eventos = ft.Column(scroll="auto", height=200)
 
         def atualizar_lista():
             lista_eventos.controls.clear()
-
-            for ev in listar_eventos(data_str):
-
+            eventos = listar_eventos(data_str)
+            for ev in eventos:
                 def abrir_conteudo(ev=ev):
                     abrir_dialogo_detalhes(ev)
-
                 def remover(ev=ev):
                     excluir_evento(ev)
                     atualizar_lista()
                     gerar_calendario(ano, mes)
-
                 lista_eventos.controls.append(
                     ft.Container(
                         padding=10,
@@ -228,8 +181,7 @@ def inicial (page):
                         border_radius=10,
                         bgcolor=container_color,
                         content=ft.Column([
-                            ft.Text(f"{ev['titulo']} ({ev['materia']})",
-                                   weight="bold", size=14),
+                            ft.Text(f"{ev['titulo']} ({ev['materia']})", weight="bold", size=14),
                             ft.Row([
                                 ft.TextButton("Ver detalhes", on_click=lambda e, ev=ev: abrir_conteudo(ev)),
                                 ft.TextButton("Excluir", on_click=lambda e, ev=ev: remover(ev))
@@ -243,8 +195,7 @@ def inicial (page):
 
         # --------------- DIALOG PARA ADICIONAR EVENTO ---------------
         campo_titulo = ft.TextField(label="Título", width=250)
-        campo_materia = ft.Dropdown(label="Matéria",
-                                    options=[ft.dropdown.Option(m) for m in materias])
+        campo_materia = ft.Dropdown(label="Matéria", options=[ft.dropdown.Option(m) for m in materias])
         campo_conteudo = ft.TextField(label="Conteúdo", multiline=True, width=300)
 
         def abrir_add_evento(e):
@@ -267,20 +218,17 @@ def inicial (page):
         def salvar_evento(dlg2):
             if not campo_titulo.value or not campo_materia.value or not campo_conteudo.value:
                 return
-
             adicionar_evento(
                 data=data_str,
                 materia=campo_materia.value,
                 titulo=campo_titulo.value,
-                autor=AUTOR_GLOBAL,
+                autor=nome,
                 conteudo=campo_conteudo.value
             )
-
             atualizar_lista()
             gerar_calendario(ano, mes)
             fechar_dialog(dlg2)
             page.update()
-
 
         dlg = ferramentas.dialog(
             page,
@@ -294,7 +242,6 @@ def inicial (page):
                 lista_eventos,
             ]
         )
-
         page.open(dlg)
         page.update()
 

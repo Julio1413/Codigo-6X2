@@ -57,40 +57,6 @@ def pasta_global():
         return pasta
 
 
-def repo_global():
-    sistema = platform.system()
-
-    # Windows — repo deve ficar dentro do 6X2
-    if sistema == "Windows":
-        repo = r"C:\CubePy\6X2\repo"
-        os.makedirs(repo, exist_ok=True)
-        return repo
-
-    # Android — repo separado, mas dentro da pasta principal
-    elif "ANDROID_BOOTLOGO" in os.environ or (
-        sistema == "Linux" and "arm" in platform.uname().machine
-    ):
-        base = os.getenv("FLET_APP_STORAGE_DATA")
-
-        if not base:
-            base = "/data/data/" + (os.getenv("PYTHON_PACKAGE_NAME") or "app") + "/files"
-
-        repo = os.path.join(base, "repo")
-        os.makedirs(repo, exist_ok=True)
-        return repo
-
-    # macOS — repo dentro do app
-    elif sistema == "Darwin":
-        repo = os.path.expanduser("~/Library/Application Support/CubePy/6X2/repo")
-        os.makedirs(repo, exist_ok=True)
-        return repo
-
-    # Linux comum — repo deve ficar dentro do 6X2
-    elif sistema == "Linux":
-        repo = os.path.expanduser("~/Cubepy/6X2/repo")
-        os.makedirs(repo, exist_ok=True)
-        return repo
-
 
 #ferramentas de interface (header e container)
 def header( 
