@@ -1,26 +1,6 @@
 from flet import Text, SnackBar, Colors, TextField, KeyboardType, ElevatedButton, ButtonStyle, RoundedRectangleBorder, Icons
 import platform, os
 #padding geral da ui
-def padding():
-    return 17
-import flet as ft
-#cor para janela
-def brightness(page):
-    if page.theme_mode == ft.ThemeMode.LIGHT:
-        container_color = ft.Colors.WHITE
-    else:
-        container_color = ft.Colors.BLACK87
-    page.update()
-    return container_color
-
-#cor para texto
-def brightness_text(page):
-    if page.theme_mode == ft.ThemeMode.LIGHT:
-        text_color = ft.Colors.BLACK87
-    else:
-        text_color = ft.Colors.WHITE
-    page.update()
-    return text_color
 
 #pasta global
 def pasta_global():
@@ -29,8 +9,6 @@ def pasta_global():
     # Windows
     if sistema == "Windows":
         pasta = r"C:\CubePy\6X2"
-        os.makedirs(pasta, exist_ok=True)
-        return pasta
 
     # Android
     elif "ANDROID_BOOTLOGO" in os.environ or (
@@ -41,22 +19,21 @@ def pasta_global():
         if not pasta:
             pasta = "/data/data/" + (os.getenv("PYTHON_PACKAGE_NAME") or "app") + "/files"
 
-        os.makedirs(pasta, exist_ok=True)
-        return pasta
-
     # macOS
     elif sistema == "Darwin":
         pasta = os.path.expanduser("~/Library/Application Support/CubePy/6X2")
-        os.makedirs(pasta, exist_ok=True)
-        return pasta
 
     # Linux comum
     elif sistema == "Linux":
         pasta = os.path.expanduser("~/Cubepy/6X2")
-        os.makedirs(pasta, exist_ok=True)
-        return pasta
+    
+    else:
+        pasta = None
+        
+    if pasta != None: os.makedirs(pasta, exist_ok=True)
+    return pasta
 
-
+#funções adaptadas para web
 
 #ferramentas de interface (header e container)
 def header( 
@@ -181,6 +158,27 @@ def dialog(page,
 
 
     return dlg
+
+def padding():
+    return 17
+import flet as ft
+#cor para janela
+def brightness(page):
+    if page.theme_mode == ft.ThemeMode.LIGHT:
+        container_color = ft.Colors.WHITE
+    else:
+        container_color = ft.Colors.BLACK87
+    page.update()
+    return container_color
+
+#cor para texto
+def brightness_text(page):
+    if page.theme_mode == ft.ThemeMode.LIGHT:
+        text_color = ft.Colors.BLACK87
+    else:
+        text_color = ft.Colors.WHITE
+    page.update()
+    return text_color
 
 def fechar_dialog(page, dlg):
     dlg.open = False

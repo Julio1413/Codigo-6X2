@@ -25,8 +25,8 @@ def _ler_arquivo(caminho):
 
 
 def obter_credenciais():
-    url = _ler_arquivo(URL_FILE)
-    key = _ler_arquivo(KEY_FILE)
+    url = 'https://ellyuhvkzfwgkyvhktis.supabase.co'
+    key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsbHl1aHZremZ3Z2t5dmhrdGlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzMzU5NTYsImV4cCI6MjA4MTkxMTk1Nn0.xTcZbx3fDs_tx_uRVG33yIkzAYLdz_sjTZM87vb5QGE'
 
     if not url or not key:
         return None, None
@@ -62,7 +62,6 @@ def testar_conexao(url,key,tabela_teste="login"):
         if r.status_code == 200:
             return r.json()
 
-        return None
 
     except:
         return None

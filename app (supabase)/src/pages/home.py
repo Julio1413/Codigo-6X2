@@ -8,11 +8,16 @@ import calendar
 
 # Funções do calendário
 pasta_global = ferramentas.pasta_global()
-with open(os.path.join(pasta_global, 'INFO.txt'), 'r') as f:
-    linhas = f.read().splitlines()
-    nome = linhas[0]
-    matricula = linhas[1]
-    id_usuario = linhas[2]
+if os.path.exists(os.path.join(pasta_global, 'INFO.txt')):
+    with open(os.path.join(pasta_global, 'INFO.txt'), 'r') as f:
+        linhas = f.read().splitlines()
+        nome = linhas[0]
+        matricula = linhas[1]
+        id_usuario = linhas[2]
+else:
+    nome = "Usuário"
+    matricula = "000000"
+    id_usuario = "0"
 
 
 

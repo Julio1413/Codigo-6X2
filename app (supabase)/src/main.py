@@ -1,7 +1,6 @@
 import flet as ft
 import os
 from pages import ferramentas,home,login_page,supabase
-import shutil
 
 pasta_global = ferramentas.pasta_global()
 
@@ -18,8 +17,9 @@ def main (page= ft.Page):
     page.window.maximizable = True
     page.window.resizable = True
     page.scroll = 'none'
-    arquivos = ['INFO.txt', 'URL_FILE.txt', 'TOKEN_FILE.txt']
+    arquivos = ['INFO.txt']
     page.add(ft.Text(f'\n'))
+
 
 
     # Verifica se o diretório global existe, se não, cria o diretório
@@ -46,37 +46,16 @@ def main (page= ft.Page):
             caminho_arquivo = os.path.join(pasta_global, arquivo)
             if os.path.exists(caminho_arquivo):
                 os.remove(caminho_arquivo)
-        login_page.login_page_1(page)
+        login_page.login_page_2(page)
     else:
         # Leitura correta do INFO.txt
         with open(os.path.join(pasta_global, 'INFO.txt'), 'r') as f:
             linhas = f.read().splitlines()
         nome = linhas[0]
         matricula = linhas[1]
-        id = linhas[2]  # string UUID
+        id = int(linhas[2])  # string UUID
 
-        with open(os.path.join(pasta_global, 'TOKEN_FILE.txt'), 'r') as f:
-            token = f.read().splitlines()[0]
-        with open(os.path.join(pasta_global, 'URL_FILE.txt'), 'r') as f:
-            url = f.read()
-
-        usuario = supabase.ler_tabela(
-            "login",
-            filtros={"id": f"eq.{id}"}
-        )
-
-        if (
-            supabase.testar_conexao(url, token)
-            and usuario
-            and usuario[0]["matricula"] == matricula
-            and usuario[0]["nome"] == nome
-        ):
-            bem_vindo(page)
-        else:
-            for arquivo in arquivos:
-                caminho_arquivo = os.path.join(pasta_global, arquivo)
-                if os.path.exists(caminho_arquivo):
-                    os.remove(caminho_arquivo)
-            login_page.login_page_1(page)
+        bem_vindo(page)
+        
         
 ft.app(target=main,assets_dir='assets')

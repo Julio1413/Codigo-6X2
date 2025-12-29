@@ -1,7 +1,6 @@
 import os
 import flet as ft
 from pages import home, ferramentas,login_page
-import shutil
 
 pasta_global = ferramentas.pasta_global()
 def configs(page):
@@ -10,7 +9,6 @@ def configs(page):
     def deslogar(_):
         def sair():
             os.remove(os.path.join(pasta_global,'INFO.txt'))
-            shutil.rmtree(os.path.join(ferramentas.repo_global()))
             login_page.login_page_1(page)
             dlg.open = False
             page.update()

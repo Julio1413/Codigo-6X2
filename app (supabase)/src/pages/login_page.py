@@ -11,46 +11,61 @@ def login_sucesso(page):
     home.inicial(page)
 #obter pasta global
 pasta_global = ferramentas.pasta_global()
+def normalizar(texto):
+    if texto is None:
+        return ""
+    return str(texto).strip().lower()
+
 def login_page_2(page):
-    def validacao (nome,matricula):
+    def salvar_info(nome, matricula, id):
+        caminho = os.path.join(pasta_global, "INFO.txt")
+        with open(caminho, "w") as file:
+            file.write(f"{nome}\n{matricula}\n{id}\n")
+
+    def validacao(nome, matricula):
         if not nome or not matricula:
-            snack = ft.SnackBar(content=ft.Text('Por favor, preencha todos os campos.'),bgcolor=ft.Colors.RED,open=True)
+            snack = ft.SnackBar(content=ft.Text('Por favor, preencha todos os campos.'), bgcolor=ft.Colors.RED, open=True)
             page.open(snack)
             page.update()
-        else:
-            dados_login = supabase.ler_tabela('login')
-            print(json.dumps(dados_login,indent=4))
-            for usuario in range (len(dados_login)):
-                if dados_login[usuario]['nome'].split()[0].lower() == nome.lower() and str(dados_login[usuario]['matricula']) == str(matricula):
-                    with open (os.path.join(pasta_global,'INFO.txt'),'w') as f:
-                        f.write(f"{nome}\n{matricula}\n{usuario}")
-                    snack = ft.SnackBar(content=ft.Text('Login - 2 realizado com sucesso!'),bgcolor=ft.Colors.GREEN,open=True)
-                    page.open(snack)
-                    home.inicial(page)
-                    page.update()
-                    break
-            else:
-                snack = ft.SnackBar(content=ft.Text('Matrícula ou nome inválido.'),bgcolor=ft.Colors.RED,open=True)
-                page.open(snack)
+            return
+
+        nome_input = normalizar(nome)
+        mat_input = normalizar(matricula)
+        dados_login = supabase.ler_tabela('login')
+        print(json.dumps(dados_login, indent=4))
+        encontrado = False
+        for usuario in range(len(dados_login)):
+            nome_db = normalizar(dados_login[usuario].get('nome'))
+            mat_db = normalizar(dados_login[usuario].get('matricula'))
+            if nome_db.startswith(nome_input) and mat_db == mat_input:
+                salvar_info(nome_input, mat_input, usuario)
+                print("salvar_info() EXECUTADA")
                 page.update()
-                return
+                home.inicial(page)
+                encontrado = True
+                break
+        if not encontrado:
+            snack = ft.SnackBar(content=ft.Text('Matrícula ou nome inválido.'), bgcolor=ft.Colors.RED, open=True)
+            page.open(snack)
+            page.update()
+
     page.clean()
     page.update()
     page.add(
         ft.Column(controls=[ft.Container(height=90,
         content=ft.Container(alignment=ft.alignment.bottom_center,
-            padding=ft.padding.only(left=ferramentas.padding(), right=ferramentas.padding(),bottom=10),
-            blur=(10,10),
+            padding=ft.padding.only(left=ferramentas.padding(), right=ferramentas.padding(), bottom=10),
+            blur=(10, 10),
             content=ft.Row(
                 controls=[
-                    ft.Icon(name=ft.Icons.LOGIN_ROUNDED, color=ft.Colors.WHITE,size=30),
+                    ft.Icon(name=ft.Icons.LOGIN_ROUNDED, color=ft.Colors.WHITE, size=30),
                     ft.Text(
                         value='Login - 2',
                         color=ft.Colors.WHITE,
                         size=20,
                         weight=ft.FontWeight.BOLD,
                     ),
-                    ft.Icon(name=ft.Icons.CALENDAR_MONTH_ROUNDED, color=ft.Colors.WHITE,size=30),
+                    ft.Icon(name=ft.Icons.CALENDAR_MONTH_ROUNDED, color=ft.Colors.WHITE, size=30),
                 ],
                 alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
             ),
@@ -58,20 +73,20 @@ def login_page_2(page):
             margin=ft.margin.all(-10),
         ),
     ),
-    ft.Text(f'\n',size=10)]))
-    nome = ft.TextField(label='Primeiro nome:',hint_text='Biroska')
+    ft.Text(f'\n', size=10)]))
+    nome = ft.TextField(label='Primeiro nome:', hint_text='Biroska')
     matricula = ft.TextField(label='Número de matrícula: 200008360000')
     page.add(
-        ferramentas.container(page=page,controles=[
+        ferramentas.container(page=page, controles=[
             nome,
             matricula,
-            ft.Text('\n',expand=True),
-            ft.Container(height=page.height*0.37),
-            ft.ElevatedButton(text='Proseguir',width=page.width,icon=ft.Icons.LOGIN_ROUNDED,on_click=lambda e: validacao(nome.value,matricula.value)),
-            ft.Row(alignment=ft.MainAxisAlignment.CENTER,controls=[
-                ft.Text('404 Studios - 2025',text_align=ft.TextAlign.CENTER,size=10,weight=ft.FontWeight.BOLD,color=ft.Colors.GREY),
-                    ]),
-                ft.Text('\n',size=1)
+            ft.Text('\n', expand=True),
+            ft.Container(height=page.height * 0.37),
+            ft.ElevatedButton(text='Proseguir', width=page.width, icon=ft.Icons.LOGIN_ROUNDED, on_click=lambda e: validacao(nome.value, matricula.value)),
+            ft.Row(alignment=ft.MainAxisAlignment.CENTER, controls=[
+                ft.Text('404 Studios - 2025', text_align=ft.TextAlign.CENTER, size=10, weight=ft.FontWeight.BOLD, color=ft.Colors.GREY),
+            ]),
+            ft.Text('\n', size=1)
         ]))
     page.update()
 
