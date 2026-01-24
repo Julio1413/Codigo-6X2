@@ -99,10 +99,13 @@ def links_page(page):
                     'registrado_em': data_formatada
                 })
                 links_page(page)
+                ferramentas.fechar_dialog(page,dlg)
+                page.show_dialog(ft.SnackBar(ft.Text("Link adicionado com sucesso!"),bgcolor=ft.Colors.GREEN))
                 page.update()
+            else:
+                page.show_dialog(ft.SnackBar(ft.Text("Preencha todos os campos!"),bgcolor=ft.Colors.RED))
                 
-                
-        page.show_dialog(ferramentas.dialog(
+        dlg = ferramentas.dialog(
             page=page,
             titulo="Adicionar link",
             icone_d=ft.Icons.ADD_LINK_ROUNDED,
@@ -114,7 +117,8 @@ def links_page(page):
                 link,
                 descricao,
             ]
-        ))
+        )
+        page.show_dialog(dlg)
         page.update()
     #action button
     page.floating_action_button = ft.FloatingActionButton(

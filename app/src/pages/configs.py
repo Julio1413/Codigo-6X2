@@ -124,7 +124,6 @@ def configs(page):
         page.update()
     #construção da página
     page.add(ft.Column(expand=True,spacing=10,controls=[
-        ft.Text(f"Plataforma (debug):{platform.system()}",size=7),
         bright_options,
         ft.Divider(height=0.5),
         ft.ElevatedButton(content=ft.Text('Cor de fundo'),icon=ft.Icons.COLOR_LENS_ROUNDED,width=page.width,on_click=color_config),

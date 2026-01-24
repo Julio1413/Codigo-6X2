@@ -1,7 +1,7 @@
 
 import os
 import flet as ft
-from pages import configs, ferramentas, horarios_aula, supabase,calculadora,links
+from pages import configs, ferramentas, horarios_aula, supabase,calculadora,links,logs
 import platform
 from datetime import datetime
 import calendar
@@ -40,6 +40,10 @@ def excluir_evento(evento):
 
 
 def inicial (page):
+    adm = False
+    for pessoa in supabase.ler_tabela('adm'):
+        if pessoa['nome'].lower() == ferramentas.ler_arquivo('NOME.txt').lower():
+            adm = True
     
     arquivo_cor = "page_bgcolor.txt"
     if ferramentas.arquivo_existe(arquivo_cor):
@@ -212,8 +216,8 @@ def inicial (page):
         atualizar_lista()
 
         # --------------- DIALOG PARA ADICIONAR EVENTO ---------------
-        campo_titulo = ft.TextField(label="Título", width=250)
-        campo_materia = ft.Dropdown(label="Matéria", options=[ft.dropdown.Option(m) for m in materias])
+        campo_titulo = ft.TextField(label="Título", width=page.width)
+        campo_materia = ft.Dropdown(label="Matéria", options=[ft.dropdown.Option(m) for m in materias],width=page.width)
         campo_conteudo = ft.TextField(label="Conteúdo", multiline=True, expand=True,height=90,border_color=ft.Colors.TRANSPARENT)
 
         def abrir_add_evento(e):
@@ -285,7 +289,8 @@ def inicial (page):
         calendario_container.controls.clear()
 
         titulo = ft.Row(
-            alignment=ft.MainAxisAlignment.CENTER,
+            width=350,
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
             controls=[
             ft.IconButton(icon=ft.Icons.ARROW_BACK_IOS_ROUNDED,on_click=mes_anterior),
             ft.Text(f"{calendar.month_name[mes]} - {ano}", size=22, weight=ft.FontWeight.BOLD),
@@ -361,6 +366,11 @@ def inicial (page):
         botoes_g(texto='Notas',icon=ft.Icons.EDIT_NOTE_ROUNDED,funcao=lambda _:None),
         botoes_g(texto='Links utilitários',icon=ft.Icons.INSERT_LINK_OUTLINED,funcao=lambda _:links.links_page(page)),
     ]
+    if adm==True:
+        menu.append(
+            botoes_g(texto='Logs (ADM)',icon=ft.Icons.ADMIN_PANEL_SETTINGS_ROUNDED,funcao=lambda _:logs.logs(page))
+        )
+    
     page.add(
         ft.Stack(
             expand=True,
