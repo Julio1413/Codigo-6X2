@@ -4,6 +4,7 @@ from pages import home, ferramentas
 
 def horario(page):
     page.clean()
+    page.scroll='None'
     page.add(ferramentas.header(titulo="Horários de aula", icone=ft.Icons.CALENDAR_TODAY_ROUNDED,page=page))
     page.add(ferramentas.container(page=page, controles=[
         ft.Column(
@@ -80,6 +81,7 @@ def horario(page):
                     ft.Row([ft.Text('15:40 - 16:30 - Sociologia', weight=ft.FontWeight.W_600)], alignment=ft.MainAxisAlignment.START),
                 ],
             ),
+        ft.Placeholder(expand=True,color=ft.Colors.TRANSPARENT),
             ]
         )
     ]))

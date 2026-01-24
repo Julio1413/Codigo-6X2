@@ -1,4 +1,4 @@
-import os
+import shutil, platform
 import flet as ft
 from pages import home, ferramentas,login_page
 
@@ -10,6 +10,7 @@ def configs(page):
             ferramentas.deletar_arquivo("NOME.txt")
             ferramentas.deletar_arquivo("MATRICULA.txt")
             ferramentas.deletar_arquivo("ID.txt")
+            shutil.rmtree(ferramentas._pasta_global(notas=True), ignore_errors=True) 
             login_page.login_page_1(page)
             dlg.open = False
             page.update()
@@ -40,7 +41,7 @@ def configs(page):
             page.bgcolor = getattr(ft.Colors,cor_pagina, ft.Colors.BLACK)
             ferramentas.criar_arquivo(nome="page_bgcolor.txt",conteudo=cor_pagina)# Salva só o nome da cor
             dlg.open = False
-            page.open(ft.SnackBar(ft.Text(f"A cor de fundo foi alterada com sucesso!"), open=True,bgcolor=ft.Colors.GREEN))
+            page.show_dialog(ft.SnackBar(ft.Text(f"A cor de fundo foi alterada com sucesso!"), open=True,bgcolor=ft.Colors.GREEN))
             page.update()
         def botoes_c(titulo,cor,funcao):
             return ft.ElevatedButton(
@@ -49,7 +50,7 @@ def configs(page):
             style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=20)),
             content=ft.Column(alignment=ft.MainAxisAlignment.CENTER, controls=[
                 ft.Row(alignment=ft.MainAxisAlignment.CENTER, controls=[
-                    ft.Icon(name=ft.Icons.CIRCLE, size=50, color=cor),
+                    ft.Icon(icon=ft.Icons.CIRCLE, size=50, color=cor),
                     ]),
                 ft.Row(alignment=ft.MainAxisAlignment.CENTER, controls=[
                     ft.Text(titulo, size=12, text_align=ft.TextAlign.CENTER)
@@ -87,7 +88,7 @@ def configs(page):
                 )
             ]
         )
-        page.open(dlg)
+        page.show_dialog(dlg)
         page.update()
         
     page.add(ferramentas.header(titulo='Configurações',icone=ft.Icons.SETTINGS,page=page))
@@ -116,21 +117,22 @@ def configs(page):
             ft.Text("Claro"),
         ],
     )
-    bright_options.selected_index =  ferramentas.ler_arquivo("bright_mode.txt")
+    bright_options.selected_index =  int(ferramentas.ler_arquivo("bright_mode.txt").strip())
         
     def abrir_termos():
         page.launch_url("https://sites.google.com/view/cubepy/nossos-apps/glicapp/termos-de-uso-e-pol%C3%ADtica-de-privacidade-glicapp")
         page.update()
     #construção da página
     page.add(ft.Column(expand=True,spacing=10,controls=[
+        ft.Text(f"Plataforma (debug):{platform.system()}",size=7),
         bright_options,
         ft.Divider(height=0.5),
-        ft.ElevatedButton(text='Cor de fundo',icon=ft.Icons.COLOR_LENS_ROUNDED,width=page.width,on_click=color_config),
+        ft.ElevatedButton(content=ft.Text('Cor de fundo'),icon=ft.Icons.COLOR_LENS_ROUNDED,width=page.width,on_click=color_config),
         ft.Divider(height=0.5),
-        
+        ft.Placeholder(expand=True,color=ft.Colors.TRANSPARENT),
         #termos de uso e privacidade
         ft.Column(alignment=ft.MainAxisAlignment.END,expand=True,controls=[
-            ft.ElevatedButton(text='Sair',bgcolor=ft.Colors.RED_600,icon=ft.Icons.COLOR_LENS_ROUNDED,width=page.width,on_click=deslogar),
+            ft.ElevatedButton(content=ft.Text('Sair'),bgcolor=ft.Colors.RED_600,icon=ft.Icons.COLOR_LENS_ROUNDED,width=page.width,on_click=deslogar),
             ft.Row(alignment=ft.MainAxisAlignment.CENTER,controls=[
             ft.Text('404 Studios - 2025',text_align=ft.TextAlign.CENTER,size=10,weight=ft.FontWeight.BOLD,color=ft.Colors.GREY),
                 ]),

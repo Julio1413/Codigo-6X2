@@ -1,20 +1,13 @@
 
 import os
 import flet as ft
-from pages import configs, ferramentas, horarios_aula, supabase
+from pages import configs, ferramentas, horarios_aula, supabase,calculadora,links
 import platform
 from datetime import datetime
 import calendar
-
+_APP_INICIADO = False
 # Funções do calendário
-if ferramentas.arquivo_existe("NOME.txt") and ferramentas.arquivo_existe("MATRICULA.txt") and ferramentas.arquivo_existe("ID.txt"):
-    nome = ferramentas.ler_arquivo("NOME.txt").strip()
-    matricula = ferramentas.ler_arquivo("MATRICULA.txt").strip()
-    id_usuario = ferramentas.ler_arquivo("ID.txt").strip()
-else:
-    nome = "Usuário"
-    matricula = "000000"
-    id_usuario = "0"
+
 
 
 
@@ -47,6 +40,31 @@ def excluir_evento(evento):
 
 
 def inicial (page):
+    
+    arquivo_cor = "page_bgcolor.txt"
+    if ferramentas.arquivo_existe(arquivo_cor):
+        cor_pagina = ferramentas.ler_arquivo(arquivo_cor).strip()
+        page.bgcolor = getattr(ft.Colors, cor_pagina, ft.Colors.LIGHT_BLUE)  # Se a cor for inválida, usa preto como fallback
+    else:
+        cor_pagina = "LIGHT_BLUE"  # Apenas o nome da cor, sem "Colors."
+        page.bgcolor = getattr(ft.Colors, cor_pagina, ft.Colors.BLACK)
+        ferramentas.criar_arquivo(nome=arquivo_cor,conteudo=cor_pagina) # Salva só o nome da cor
+    page.update()   
+    
+    
+    if ferramentas.arquivo_existe("NOME.txt") and ferramentas.arquivo_existe("MATRICULA.txt") and ferramentas.arquivo_existe("ID.txt"):
+        nome = ferramentas.ler_arquivo("NOME.txt").strip()
+        matricula = ferramentas.ler_arquivo("MATRICULA.txt").strip()
+        id_usuario = ferramentas.ler_arquivo("ID.txt").strip()
+    else:
+        nome = "Usuário"
+        matricula = "000000"
+        id_usuario = "0"
+        
+        
+    global _APP_INICIADO
+    _APP_INICIADO=True
+    page.floating_action_button = None
     dlg = ft.AlertDialog(
         modal=True,
         bgcolor=ft.Colors.TRANSPARENT,
@@ -66,7 +84,7 @@ def inicial (page):
             )
         )
     )
-    #page.open(dlg)
+    #page.show_dialog(dlg)
     page.update()
     container_color = ferramentas.brightness(page)
     
@@ -90,16 +108,13 @@ def inicial (page):
         "Filosofia",
         "IMMH 1"
         ]
-    pasta_global = ferramentas.pasta_global()
     page.clean()
    #page.overlay.clear()
     #page.update()
-    if os.path.exists(os.path.join(pasta_global, "bright_mode.txt")):
-        with open(os.path.join(pasta_global, "bright_mode.txt"), "r") as file:
-            bright_mode = file.read().strip()
+    if ferramentas.arquivo_existe('bright_mode.txt'):
+        bright_mode = ferramentas.ler_arquivo("bright_mode.txt").strip()
     else:
-        with open(os.path.join(pasta_global, "bright_mode.txt"), "w") as file:
-            file.write("0")
+        ferramentas.criar_arquivo("bright_mode.txt","0")
         bright_mode = "0"
 
     if bright_mode == "0":
@@ -136,6 +151,7 @@ def inicial (page):
             y, m, d = map(int, ev["data"].split("-"))
             if y == ano and m == mes:
                 dias.add(d)
+            
         return dias
 
     # -----------------------------
@@ -156,7 +172,7 @@ def inicial (page):
             ]
         )
 
-        page.open(dlg)
+        page.show_dialog(dlg)
         page.update()
 
     # -----------------------------
@@ -198,7 +214,7 @@ def inicial (page):
         # --------------- DIALOG PARA ADICIONAR EVENTO ---------------
         campo_titulo = ft.TextField(label="Título", width=250)
         campo_materia = ft.Dropdown(label="Matéria", options=[ft.dropdown.Option(m) for m in materias])
-        campo_conteudo = ft.TextField(label="Conteúdo", multiline=True, width=300)
+        campo_conteudo = ft.TextField(label="Conteúdo", multiline=True, expand=True,height=90,border_color=ft.Colors.TRANSPARENT)
 
         def abrir_add_evento(e):
             dlg2 = ferramentas.dialog(
@@ -214,7 +230,7 @@ def inicial (page):
                     campo_conteudo
                 ]
             )
-            page.open(dlg2)
+            page.show_dialog(dlg2)
             page.update()
 
         def salvar_evento(dlg2):
@@ -244,7 +260,7 @@ def inicial (page):
                 lista_eventos,
             ]
         )
-        page.open(dlg)
+        page.show_dialog(dlg)
         page.update()
 
     # -----------------------------
@@ -269,8 +285,7 @@ def inicial (page):
         calendario_container.controls.clear()
 
         titulo = ft.Row(
-            expand=True,
-            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+            alignment=ft.MainAxisAlignment.CENTER,
             controls=[
             ft.IconButton(icon=ft.Icons.ARROW_BACK_IOS_ROUNDED,on_click=mes_anterior),
             ft.Text(f"{calendar.month_name[mes]} - {ano}", size=22, weight=ft.FontWeight.BOLD),
@@ -305,7 +320,7 @@ def inicial (page):
                         ft.Container(
                             width=40,
                             height=40,
-                            alignment=ft.alignment.center,
+                            alignment=ft.Alignment.CENTER,
                             bgcolor=ft.Colors.LIGHT_BLUE_900 if tem_evento else None,
                             border=ft.border.all(1, "#999"),
                             border_radius=5,
@@ -332,7 +347,7 @@ def inicial (page):
         style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=20)),
         content=ft.Column(alignment=ft.MainAxisAlignment.CENTER, controls=[
             ft.Row(alignment=ft.MainAxisAlignment.CENTER, controls=[
-                ft.Icon(name=icon, size=100, color=icon_color),
+                ft.Icon(icon, size=100, color=icon_color),
                 ]),
             ft.Row(alignment=ft.MainAxisAlignment.CENTER, controls=[
                 ft.Text(texto, size=12, text_align=ft.TextAlign.CENTER)
@@ -341,10 +356,10 @@ def inicial (page):
         )
     
     menu = [
-        botoes_g(texto='Calculadora',icon=ft.Icons.CALCULATE_ROUNDED,funcao=lambda _:None),
+        botoes_g(texto='Calculadora',icon=ft.Icons.CALCULATE_ROUNDED,funcao=lambda _:calculadora.calculadora(page)),
         botoes_g(texto='Horários de aula',icon=ft.Icons.CALENDAR_TODAY_ROUNDED,funcao=lambda _:horarios_aula.horario(page)),
         botoes_g(texto='Notas',icon=ft.Icons.EDIT_NOTE_ROUNDED,funcao=lambda _:None),
-        botoes_g(texto='Links utilitários',icon=ft.Icons.INSERT_LINK_OUTLINED,funcao=lambda _:None),
+        botoes_g(texto='Links utilitários',icon=ft.Icons.INSERT_LINK_OUTLINED,funcao=lambda _:links.links_page(page)),
     ]
     page.add(
         ft.Stack(
@@ -354,9 +369,9 @@ def inicial (page):
                         scroll=ft.ScrollMode.AUTO,
                         alignment=ft.MainAxisAlignment.START,
                         controls=[
-                            ft.Text(f'\n',size=33),
+                            ft.Text(f'\n',size=35),
                             ft.Container(
-                                alignment=ft.alignment.center,
+                                alignment=ft.Alignment.CENTER,
                                 content=ft.Row(
                                     alignment=ft.MainAxisAlignment.CENTER,
                                     controls=[
@@ -391,3 +406,4 @@ def inicial (page):
         )
     )
     page.update()
+    print("Home carregada com sucesso!")

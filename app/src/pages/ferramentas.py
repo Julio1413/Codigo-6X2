@@ -1,46 +1,30 @@
 import flet as ft
 import platform, os
 from http.cookies import SimpleCookie
+import asyncio
 #padding geral da ui
+print("Ferramentas utilizadas")
 
-#pasta global
-def _pasta_global():
-    sistema = platform.system()
+PASTA = None
 
-    # Windows
-    if sistema == "Windows":
-        pasta = r"C:\CubePy\6X2"
+def set_pasta(path: str):
+    global PASTA
+    PASTA = path
 
-    # Android
-    elif "ANDROID_BOOTLOGO" in os.environ or (
-        sistema == "Linux" and "arm" in platform.uname().machine
-    ):
-        pasta = os.getenv("FLET_APP_STORAGE_DATA")
 
-        if not pasta:
-            pasta = "/data/data/" + (os.getenv("PYTHON_PACKAGE_NAME") or "app") + "/files"
-
-    # macOS
-    elif sistema == "Darwin":
-        pasta = os.path.expanduser("~/Library/Application Support/CubePy/6X2")
-
-    # Linux comum
-    elif sistema == "Linux":
-        pasta = os.path.expanduser("~/Cubepy/6X2")
-        
-    if pasta != None: 
-        os.makedirs(pasta, exist_ok=True)
-        return pasta
-    else:
-        return
+def get_pasta() -> str:
+    global PASTA
+    if PASTA is None:
+        raise RuntimeError("PASTA ainda não foi inicializada")
+    return PASTA
 
 
 
 
 #funções adaptadas para web
 def criar_arquivo(nome:str,conteudo:str,metodo='w'):
-    if _pasta_global(): #local
-        with open(os.path.join(_pasta_global(),nome), metodo) as f:
+    if PASTA: #local
+        with open(os.path.join(PASTA,nome), metodo) as f:
             f.write(conteudo)
     else: #web
         cookie = SimpleCookie()
@@ -49,9 +33,9 @@ def criar_arquivo(nome:str,conteudo:str,metodo='w'):
         cookie[nome]["path"] = "/"
         
 def ler_arquivo(nome:str, cookie_header:str='404 Studios'):
-    if _pasta_global(): #local
-        if os.path.exists(os.path.join(_pasta_global(),nome)):
-            with open(os.path.join(_pasta_global(),nome), "r") as f:
+    if PASTA: #local
+        if os.path.exists(os.path.join(PASTA,nome)):
+            with open(os.path.join(PASTA,nome), "r") as f:
                 retorno = f.read()
         else:
             retorno =  None
@@ -62,9 +46,9 @@ def ler_arquivo(nome:str, cookie_header:str='404 Studios'):
     return retorno
 
 def deletar_arquivo(nome:str):
-    if _pasta_global():
-        if os.path.exists(os.path.join(_pasta_global(),nome)):
-            os.remove(os.path.join(_pasta_global(),nome))
+    if PASTA:
+        if os.path.exists(os.path.join(PASTA,nome)):
+            os.remove(os.path.join(PASTA,nome))
     else:
         cookie = SimpleCookie()
         cookie[nome] = ""
@@ -72,8 +56,8 @@ def deletar_arquivo(nome:str):
         cookie[nome]["path"] = "/"
         
 def arquivo_existe(nome:str, cookie_header:str='404 Studios'):
-    if _pasta_global():
-        return os.path.exists(os.path.join(_pasta_global(),nome))
+    if PASTA:
+        return os.path.exists(os.path.join(PASTA,nome))
     else:
         cookie = SimpleCookie()
         cookie.load(cookie_header)
@@ -92,7 +76,7 @@ def header(
     if destino is None:
         destino = home.inicial
     return ft.Column(controls=[ft.Container(height=90,
-        content=ft.Container(alignment=ft.alignment.bottom_center,
+        content=ft.Container(alignment=ft.Alignment.BOTTOM_CENTER,
             padding=ft.padding.only(left=padding(), right=padding(),bottom=10),
             blur=(10,10),
             content=ft.Row(
@@ -109,7 +93,7 @@ def header(
                         size=20,
                         weight=ft.FontWeight.BOLD,
                     ),
-                    ft.Icon(name=icone, color=ft.Colors.WHITE,size=30),
+                    ft.Icon(icone, color=ft.Colors.WHITE,size=30),
                 ],
                 alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
             ),
@@ -130,9 +114,10 @@ def container(page,
             padding=ft.padding.all(17),
             border_radius=ft.border_radius.only(top_left=42, top_right=42),
             bgcolor=brightness(page),
-            alignment=ft.alignment.top_center,
+            alignment=ft.Alignment.TOP_CENTER,
             content=ft.Column(
-                scroll=ft.ScrollMode.AUTO,
+                expand=True,
+                scroll=ft.ScrollMode.HIDDEN,
                 alignment=ft.MainAxisAlignment.START,
                 controls=controles
             )
@@ -170,9 +155,9 @@ def dialog(page,
                     ft.Row(
                         alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                         controls=[
-                            ft.Icon(name=icone_d),
+                            ft.Icon(icon=icone_d),
                             ft.Text(titulo, size=17, weight=ft.FontWeight.BOLD),
-                            ft.Icon(name=icone_e),
+                            ft.Icon(icon=icone_e),
                         ]
                     ), 
                     ft.Divider(height=1),

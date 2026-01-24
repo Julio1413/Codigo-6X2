@@ -1,14 +1,32 @@
 import os
 import json
 import requests
+import threading
 from pages import ferramentas   
+# ======================================================
+# HELPER DE THREADS
+# ======================================================
+
+def _run_in_thread(func, callback=None):
+    def runner():
+        try:
+            result = func()
+            if callback:
+                callback(result)
+        except Exception as e:
+            print("Erro na thread Supabase:", e)
+            if callback:
+                callback(None)
+
+    threading.Thread(target=runner, daemon=True).start()
 
 # ======================================================
 # CONFIGURAÇÕES DE ARQUIVO
 # ======================================================
 
-URL_FILE = ferramentas.ler_arquivo("URL_FILE.txt")
-KEY_FILE = ferramentas.ler_arquivo("TOKEN_FILE.txt")
+
+# URL_FILE = ferramentas.ler_arquivo('URL_FILE.txt')
+# KEY_FILE = ferramentas.ler_arquivo('TOKEN_FILE.txt')
 
 # ======================================================
 # FUNÇÕES DE CREDENCIAIS
@@ -16,8 +34,8 @@ KEY_FILE = ferramentas.ler_arquivo("TOKEN_FILE.txt")
 
 def _ler_arquivo(caminho):
     try:
-        with open(caminho, "r") as f:
-            return f.read().strip()
+        
+        return ferramentas.ler_arquivo(caminho).strip()
     except:
         return None
 
@@ -55,7 +73,7 @@ def testar_conexao(url,key,tabela_teste="login"):
             return None
 
         endpoint = f"{url}/rest/v1/{tabela_teste}?limit=1"
-        r = requests.get(endpoint, headers=_headers(key), timeout=10)
+        r = requests.get(endpoint, headers=_headers(key), timeout=1000)
 
         if r.status_code == 200:
             return r.json()
@@ -69,6 +87,12 @@ def testar_conexao(url,key,tabela_teste="login"):
 # ======================================================
 
 def ler_tabela(nome_tabela, filtros=None):
+    print("ler_tabela() chamada")
+    def ler_tabela_async(nome_tabela, filtros=None, callback=None):
+        _run_in_thread(
+            lambda: ler_tabela(nome_tabela, filtros),
+            callback
+        )
     try:
         url, key = obter_credenciais()
         if not url or not key:
@@ -82,7 +106,7 @@ def ler_tabela(nome_tabela, filtros=None):
             endpoint,
             headers=_headers(key),
             params=params,
-            timeout=10
+            timeout=1000
         )
 
         if r.status_code == 200:
@@ -96,6 +120,12 @@ def ler_tabela(nome_tabela, filtros=None):
 # ======================================================
 
 def inserir_linha(nome_tabela, dados: dict):
+    print("inserir_linha() chamada")
+    def inserir_linha_async(nome_tabela, dados: dict, callback=None):
+        _run_in_thread(
+            lambda: inserir_linha(nome_tabela, dados),
+            callback
+        )
     try:
         url, key = obter_credenciais()
         if not url or not key:
@@ -107,7 +137,7 @@ def inserir_linha(nome_tabela, dados: dict):
             endpoint,
             headers=_headers(key),
             data=json.dumps(dados),
-            timeout=10
+            timeout=1000
         )
 
         if r.status_code in (200, 201):
@@ -123,6 +153,12 @@ def inserir_linha(nome_tabela, dados: dict):
 # ======================================================
 
 def atualizar_linha(nome_tabela, filtros: dict, novos_dados: dict):
+    print("atualizar_linha() chamada")
+    def atualizar_linha_async(nome_tabela, filtros: dict, novos_dados: dict, callback=None):
+        _run_in_thread(
+            lambda: atualizar_linha(nome_tabela, filtros, novos_dados),
+            callback
+        )
     """
     filtros: {"id": "eq.1"} ou {"email": "eq.teste@gmail.com"}
     """
@@ -138,7 +174,7 @@ def atualizar_linha(nome_tabela, filtros: dict, novos_dados: dict):
             headers=_headers(key),
             params=filtros,
             data=json.dumps(novos_dados),
-            timeout=10
+            timeout=1000
         )
 
         if r.status_code in (200, 204):
@@ -154,6 +190,12 @@ def atualizar_linha(nome_tabela, filtros: dict, novos_dados: dict):
 # ======================================================
 
 def excluir_linha(nome_tabela, filtros: dict):
+    print("excluir_linha() chamada")
+    def excluir_linha_async(nome_tabela, filtros: dict, callback=None):
+        _run_in_thread(
+            lambda: excluir_linha(nome_tabela, filtros),
+            callback
+        )
     try:
         url, key = obter_credenciais()
         if not url or not key:
@@ -165,7 +207,7 @@ def excluir_linha(nome_tabela, filtros: dict):
             endpoint,
             headers=_headers(key),
             params=filtros,
-            timeout=10
+            timeout=1000
         )
 
         if r.status_code in (200, 204):
