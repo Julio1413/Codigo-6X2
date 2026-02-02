@@ -5,12 +5,11 @@ import os, platform
 def bem_vindo(page):
     page.clean()
     home.inicial(page)
-    page.snack_bar = ft.SnackBar(
+    page.show_dialog(ft.SnackBar(
         content=ft.Text("Bem vindo(a) ao 6X2_App!"),
         bgcolor=ft.Colors.GREEN,
-    )
-    page.snack_bar.open = True
-    page.update()
+    ))
+    page.update() 
 
 
 async def main(page: ft.Page):

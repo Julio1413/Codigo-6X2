@@ -1,14 +1,29 @@
 
 import os
 import flet as ft
-from pages import configs, ferramentas, horarios_aula, supabase,calculadora,links,logs
+from pages import configs, ferramentas, horarios_aula, supabase,calculadora,links,logs,avisos,notas,login_page,eventos_lista
 import platform
 from datetime import datetime
 import calendar
-_APP_INICIADO = False
 # Funções do calendário
+versao_atual = "1.0"
 
-
+materias = [
+    "Matemática",
+    "Português",
+    "História",
+    "Geografia",
+    "Biologia",
+    "Física",
+    "Química",
+    "Informática",
+    "Artes",
+    "Inglês",
+    "Algoritmos",
+    "Sociologia",
+    "Filosofia",
+    "IMMH 1"
+    ]
 
 
 # --- NOVAS FUNÇÕES OBRIGATÓRIAS (APENAS SUPABASE) ---
@@ -31,15 +46,56 @@ def adicionar_evento(data, materia, titulo, autor, conteudo):
             "registrado_em": registrado
         }
     )
+    
 
 def excluir_evento(evento):
     supabase.excluir_linha(
         "eventos",
         filtros={"id": f"eq.{evento['id']}"}
     )
+    print(
+        supabase.inserir_log(
+            f'Evento excluído: {evento["titulo"]}\nEm {evento["data"]}\nDescrição: {evento["conteudo"]}'
+        )
+    )
 
 
 def inicial (page):
+    
+    page.update()
+    page.floating_action_button = None
+    #verificar login pessoal
+    pessoas = supabase.ler_tabela('login')
+    encontrado = False
+    for usuario in pessoas:
+        if usuario['nome'].lower() == ferramentas.ler_arquivo('NOME.txt') and usuario['matricula'].lower() == ferramentas.ler_arquivo('MATRICULA.txt'):
+            encontrado = True
+            break
+    if not encontrado:
+        snack = ft.SnackBar(content=ft.Text('Matrícula ou nome inválido.'), bgcolor=ft.Colors.RED, open=True)
+        login_page.login_page_2(page)
+        page.show_dialog(snack)
+        page.update()
+        return
+    
+    #verificar versao
+    
+    versao = supabase.ler_tabela('versoes')[::-1][0] or {'id': 2, 'versao': '1.0', 'mensagem': 'Nenhuma nota de atualização encontrada.'}
+    if str(versao['versao']).strip() != versao_atual:
+        dlg = ferramentas.dialog(
+            page=page,
+            titulo=f'Atualização disponível!',
+            icone_d=ft.Icons.UPDATE_ROUNDED,
+            icone_e=ft.Icons.INFO_OUTLINE_ROUNDED,
+            conteudo=[
+                ft.Text(f'Versão atual: v{versao_atual}',weight=ft.FontWeight.BOLD),
+                ft.Text(f'Versão disponível: v{versao["versao"]}',weight=ft.FontWeight.BOLD),
+                ft.Divider(),
+                ft.Text(f'Novidades:\n{versao["mensagem"]}', size=15),
+            ]
+        )
+        page.show_dialog(dlg)
+    
     adm = False
     for pessoa in supabase.ler_tabela('adm'):
         if pessoa['nome'].lower() == ferramentas.ler_arquivo('NOME.txt').lower():
@@ -66,28 +122,7 @@ def inicial (page):
         id_usuario = "0"
         
         
-    global _APP_INICIADO
-    _APP_INICIADO=True
-    page.floating_action_button = None
-    dlg = ft.AlertDialog(
-        modal=True,
-        bgcolor=ft.Colors.TRANSPARENT,
-        content=ft.Container(
-            bgcolor=ft.Colors.TRANSPARENT,
-            margin=ft.margin.only(top=6,left=7,right=7,bottom=4),
-            border_radius=ft.border_radius.all(20),
-            expand=True,
-            height=150,
-            width=300,
-            padding=ft.padding.all(6),
-            content=ft.Column(
-                alignment=ft.MainAxisAlignment.CENTER,
-                controls=[
-                    ft.ProgressRing(width=50, height=50, color=ft.Colors.BLUE)
-                ]
-            )
-        )
-    )
+    
     #page.show_dialog(dlg)
     page.update()
     container_color = ferramentas.brightness(page)
@@ -96,22 +131,6 @@ def inicial (page):
     mes_atual = datetime.now().month
 
     calendario_container = ft.Column()
-    materias = [
-        "Matemática",
-        "Português",
-        "História",
-        "Geografia",
-        "Biologia",
-        "Física",
-        "Química",
-        "Inglês",
-        "Informática",
-        "Artes",
-        "Algoritmos",
-        "Sociologia",
-        "Filosofia",
-        "IMMH 1"
-        ]
     page.clean()
    #page.overlay.clear()
     #page.update()
@@ -193,6 +212,7 @@ def inicial (page):
                 def abrir_conteudo(ev=ev):
                     abrir_dialogo_detalhes(ev)
                 def remover(ev=ev):
+                    page.show_dialog(ft.SnackBar(ft.Text("Evento excluído com sucesso!"),bgcolor=ft.Colors.GREEN))
                     excluir_evento(ev)
                     atualizar_lista()
                     gerar_calendario(ano, mes)
@@ -218,7 +238,7 @@ def inicial (page):
         # --------------- DIALOG PARA ADICIONAR EVENTO ---------------
         campo_titulo = ft.TextField(label="Título", width=page.width)
         campo_materia = ft.Dropdown(label="Matéria", options=[ft.dropdown.Option(m) for m in materias],width=page.width)
-        campo_conteudo = ft.TextField(label="Conteúdo", multiline=True, expand=True,height=90,border_color=ft.Colors.TRANSPARENT)
+        campo_conteudo = ft.TextField(label="Conteúdo", multiline=True, expand=True,border_color=ft.Colors.TRANSPARENT)
 
         def abrir_add_evento(e):
             dlg2 = ferramentas.dialog(
@@ -247,6 +267,7 @@ def inicial (page):
                 autor=nome,
                 conteudo=campo_conteudo.value
             )
+            page.show_dialog(ft.SnackBar(ft.Text("Evento adicionado com sucesso!"),bgcolor=ft.Colors.GREEN))  
             atualizar_lista()
             gerar_calendario(ano, mes)
             fechar_dialog(dlg2)
@@ -326,7 +347,7 @@ def inicial (page):
                             width=40,
                             height=40,
                             alignment=ft.Alignment.CENTER,
-                            bgcolor=ft.Colors.LIGHT_BLUE_900 if tem_evento else None,
+                            bgcolor=page.bgcolor if tem_evento else None,
                             border=ft.border.all(1, "#999"),
                             border_radius=5,
                             content=ft.Text(str(dia)),
@@ -361,14 +382,16 @@ def inicial (page):
         )
     
     menu = [
-        botoes_g(texto='Calculadora',icon=ft.Icons.CALCULATE_ROUNDED,funcao=lambda _:calculadora.calculadora(page)),
         botoes_g(texto='Horários de aula',icon=ft.Icons.CALENDAR_TODAY_ROUNDED,funcao=lambda _:horarios_aula.horario(page)),
-        botoes_g(texto='Notas',icon=ft.Icons.EDIT_NOTE_ROUNDED,funcao=lambda _:None),
+        botoes_g(texto='Avisos',icon=ft.Icons.INFO_ROUNDED,funcao=lambda _:avisos.avisos(page)),
+        botoes_g(texto='Exibição em lista',icon=ft.Icons.FORMAT_LIST_BULLETED_ROUNDED,funcao=lambda _:eventos_lista.eventos_lista(page)),
         botoes_g(texto='Links utilitários',icon=ft.Icons.INSERT_LINK_OUTLINED,funcao=lambda _:links.links_page(page)),
+        botoes_g(texto='Calculadora',icon=ft.Icons.CALCULATE_ROUNDED,funcao=lambda _:calculadora.calculadora(page)),
+        botoes_g(texto='Notas',icon=ft.Icons.EDIT_NOTE_ROUNDED,funcao=lambda _:notas.notas(page)),
     ]
     if adm==True:
         menu.append(
-            botoes_g(texto='Logs (ADM)',icon=ft.Icons.ADMIN_PANEL_SETTINGS_ROUNDED,funcao=lambda _:logs.logs(page))
+            botoes_g(texto='Funções de ADM',icon=ft.Icons.ADMIN_PANEL_SETTINGS_ROUNDED,funcao=lambda _:logs.logs(page))
         )
     
     page.add(
@@ -379,7 +402,7 @@ def inicial (page):
                         scroll=ft.ScrollMode.AUTO,
                         alignment=ft.MainAxisAlignment.START,
                         controls=[
-                            ft.Text(f'\n',size=35),
+                            ft.Text(f'\n',size=39),
                             ft.Container(
                                 alignment=ft.Alignment.CENTER,
                                 content=ft.Row(
@@ -404,8 +427,8 @@ def inicial (page):
                                 runs_count=2,
                                 max_extent=page.width/2,
                                 child_aspect_ratio=1,
-                                spacing=20,
-                                run_spacing=20,
+                                spacing=10,
+                                run_spacing=10,
                                 controls=menu
                                         ),
                             

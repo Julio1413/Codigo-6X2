@@ -75,7 +75,7 @@ def header(
     from pages import home
     if destino is None:
         destino = home.inicial
-    return ft.Column(controls=[ft.Container(height=90,
+    return ft.Column(controls=[ft.Container(height=90,padding=-10,
         content=ft.Container(alignment=ft.Alignment.BOTTOM_CENTER,
             padding=ft.padding.only(left=padding(), right=padding(),bottom=10),
             blur=(10,10),
@@ -95,13 +95,13 @@ def header(
                     ),
                     ft.Icon(icone, color=ft.Colors.WHITE,size=30),
                 ],
-                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                alignment=ft.MainAxisAlignment.SPACE_AROUND,
             ),
             height=50,
             margin=ft.margin.all(-10),
         ),
     ),
-    ft.Text(f'\n',size=1)
+    ft.Placeholder(height=10,color=ft.Colors.TRANSPARENT)
                                ])
 
 
@@ -122,6 +122,48 @@ def container(page,
                 controls=controles
             )
         )
+    
+def bottom_sheet(page,
+                 icone_d,
+                 icone_e,
+                 titulo,
+                 controles:list = []
+                 ):
+    sheet = ft.BottomSheet(
+        bgcolor=ft.Colors.with_opacity(0.0, ft.Colors.WHITE),
+        content=ft.Container(
+            blur=(10,10),
+            bgcolor=ft.Colors.with_opacity(0.2, brightness(page)),
+            margin=ft.margin.only(top=0,left=0,right=0,bottom=0),
+            border_radius=ft.border_radius.all(30),
+            expand=True,
+            height=400,
+            width=page.width*0.8,
+            padding=ft.padding.all(15),
+            content=ft.Column(
+                scroll=ft.ScrollMode.AUTO,
+                alignment=ft.MainAxisAlignment.START,
+                controls=[
+                    # título
+                    ft.Row(
+                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                        controls=[
+                            ft.Icon(icon=icone_d),
+                            ft.Text(titulo, size=14, weight=ft.FontWeight.BOLD),
+                            ft.Icon(icon=icone_e),
+                        ]
+                    ), 
+                    ft.Divider(),
+                    ft.Column(
+                        alignment=ft.MainAxisAlignment.START,
+                        controls=controles,
+                    )
+                ]
+            )
+        )
+    )
+    return sheet
+    
 def dialog(page,
     titulo,
     icone_e=None,
@@ -142,7 +184,7 @@ def dialog(page,
         content=ft.Container(
             blur=(10, 10),
             bgcolor=ft.Colors.with_opacity(0.2, brightness(page)),
-            margin=ft.margin.only(top=6,left=7,right=7,bottom=4),
+            margin=ft.margin.only(top=0,left=0,right=0,bottom=0),
             border_radius=ft.border_radius.all(20),
             expand=True,
             height=450,

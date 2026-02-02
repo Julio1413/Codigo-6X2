@@ -10,8 +10,7 @@ def configs(page):
             ferramentas.deletar_arquivo("NOME.txt")
             ferramentas.deletar_arquivo("MATRICULA.txt")
             ferramentas.deletar_arquivo("ID.txt")
-            shutil.rmtree(ferramentas._pasta_global(notas=True), ignore_errors=True) 
-            login_page.login_page_1(page)
+            login_page.login_page_2(page)
             dlg.open = False
             page.update()
             
@@ -28,10 +27,10 @@ def configs(page):
                     controls=[ft.Text('Tem certeza de que deseja\nsair da sua conta 6X2?',weight=ft.FontWeight.BOLD)]),
                 ft.Row(
                     alignment=ft.MainAxisAlignment.CENTER,
-                    controls=[ft.Icon(name=ft.Icons.DELETE_FOREVER_ROUNDED,color=ft.Colors.RED,size=100)]),
+                    controls=[ft.Icon(icon=ft.Icons.DELETE_FOREVER_ROUNDED,color=ft.Colors.RED,size=100)]),
             ]
         )
-        page.open(dlg)
+        page.show_dialog(dlg)
         page.update()
 
     def color_config(_):

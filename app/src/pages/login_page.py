@@ -41,7 +41,6 @@ def login_page_2(page):
         nome_input = normalizar(nome)
         mat_input = normalizar(matricula)
         dados_login = supabase.ler_tabela('login')
-        print(json.dumps(dados_login, indent=4))
         encontrado = False
         for usuario in range(len(dados_login)):
             nome_db = normalizar(dados_login[usuario].get('nome'))
@@ -50,12 +49,13 @@ def login_page_2(page):
                 salvar_info(nome_input, mat_input, usuario)
                 print("salvar_info() EXECUTADA")
                 page.update()
+                supabase.inserir_log(f'Login realizado por {nome_input}')
                 home.inicial(page)
                 encontrado = True
                 break
         if not encontrado:
             snack = ft.SnackBar(content=ft.Text('Matrícula ou nome inválido.'), bgcolor=ft.Colors.RED, open=True)
-            page.open(snack)
+            page.show_dialog(snack)
             page.update()
 
     page.clean()

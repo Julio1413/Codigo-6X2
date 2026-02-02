@@ -1,4 +1,3 @@
-import os
 import json
 import requests
 import threading
@@ -217,3 +216,13 @@ def excluir_linha(nome_tabela, filtros: dict):
 
     except:
         return None
+def inserir_log(mensagem: str):
+    from datetime import datetime
+    agora = datetime.now()
+    log = {
+        "mensagem": mensagem,
+        "registrado_em":agora.strftime("%d/%m/%Y %H:%M:%S"),
+        "autor": ferramentas.ler_arquivo('NOME.txt')
+        }
+    inserir_linha('logs',log)
+    return log

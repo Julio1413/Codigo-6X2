@@ -39,7 +39,7 @@ def links_page(page):
         loop = asyncio.get_event_loop()
         coluna_main.controls.append(
             ft.Container(
-                bgcolor=ft.Colors.with_opacity(0.3,ft.Colors.BLACK_26),
+                bgcolor=ft.Colors.with_opacity(0.15,ft.Colors.BLACK_12),
                 border_radius=ft.border_radius.all(27),
                 padding=ft.padding.all(13),
                 content=ft.Column(
@@ -52,11 +52,11 @@ def links_page(page):
                                 ft.IconButton(disabled=desativar_excluir,width=35,height=35,icon_size=17,bgcolor=ft.Colors.WHITE_12,icon=ft.Icons.DELETE_ROUNDED, icon_color=ft.Colors.RED, tooltip="Remover link (apenas para ADMs!)", on_click=lambda _: excluir_link(link['id']) ),
                             ],
                         ),
-                        ft.Divider(),
+                        ft.Divider(color=ferramentas.brightness_text(page)),
                         ft.Text(f"Link: {url}", size=12, color=ft.Colors.BLUE),
                         ft.Text(f"Adicionado por: {autor} em {data}", size=12),
                         ft.Text(f"Descrição:\n {desc}", size=12),
-                        ft.Divider(),
+                        ft.Divider(color=ferramentas.brightness_text(page)),
                         ft.Row(
                             alignment=ft.MainAxisAlignment.SPACE_AROUND,
                             scroll='None',
@@ -125,7 +125,7 @@ def links_page(page):
         icon=ft.Icons.ADD,
         on_click=lambda _:adicionar_link(),
         tooltip="Adicionar novo link",
-        bgcolor=ft.Colors.LIGHT_BLUE,
+        bgcolor=page.bgcolor,
     )
 
     #header da página
@@ -138,7 +138,8 @@ def links_page(page):
     #container principal
     page.add(ferramentas.container(
         controles=[
-            ft.Text("Links utilitários",size=15,weight=ft.FontWeight.BOLD),
+            ft.Text("Links utilitários",weight=ft.FontWeight.BOLD),
+            ft.Divider(),
             coluna_main,
     
             ],
