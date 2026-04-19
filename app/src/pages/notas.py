@@ -15,17 +15,22 @@ def notas(page):
         arquivos = os.listdir(pasta_principal)
     else:
         arquivos = []
-        shutil.os.makedirs(pasta_principal)
+        os.makedirs(pasta_principal, exist_ok=True)
     
     #funcoes das notas
     def nova_nota():
         def salvar(conteudo, arquivo):
-            ferramentas.fechar_dialog(page, dlg)
+            # Se o título estiver vazio, previne o erro de permissão (IsADirectoryError: É um diretório)
+            if not arquivo or not arquivo.strip():
+                page.show_dialog(ft.SnackBar(ft.Text("A nota precisa de um título!"), bgcolor=ft.Colors.RED))
+                page.update()
+                return
+
             with open(os.path.join(pasta_principal, arquivo), "w") as f:
                 f.write(conteudo)
-            ferramentas.fechar_dialog(page, dlg)
-            page.show_dialog(ft.SnackBar(ft.Text("Nota criada com sucesso!"), bgcolor=ft.Colors.GREEN))
+                
             notas(page)
+            page.show_dialog(ft.SnackBar(ft.Text("Nota salva com sucesso!"), bgcolor=ft.Colors.GREEN))
             page.update()
             
         nova_nota_titulo = ft.TextField(
@@ -44,19 +49,19 @@ def notas(page):
                     expand=True,
                     label="Conteúdo da nota",
                 )
-        dlg = ferramentas.dialog(
-            page=page,
-            titulo="Nova nota",
-            icone_d=ft.Icons.NOTE_ADD_ROUNDED,
-            icone_e=ft.Icons.INFO,
-            funcao_btn=lambda _: salvar(nova_nota_conteudo.value, nova_nota_titulo.value),
-            texto_btn="Salvar",
-            conteudo=[
-                nova_nota_titulo,
-                nova_nota_conteudo
-            ]
+       
+        page.clean()
+        page.floating_action_button = ft.FloatingActionButton(bgcolor=page.bgcolor,icon=ft.Icons.SAVE_ROUNDED,on_click=lambda _: salvar(nova_nota_conteudo.value, nova_nota_titulo.value))
+        page.add(ferramentas.header(page=page,titulo="Notas",icone=ft.Icons.EDIT_NOTE_ROUNDED,destino=lambda _: notas(page)))
+        page.add(
+            ferramentas.container(
+                page=page,
+                controles=[
+                    nova_nota_titulo,
+                    nova_nota_conteudo
+                ]
+            )
         )
-        page.show_dialog(dlg)
     
     def excluir(arquivo):
         def permanentemente():
@@ -84,7 +89,7 @@ def notas(page):
             with open(os.path.join(pasta_principal, arquivo), "w") as f:
                 f.write(conteudo)
             
-            ferramentas.fechar_dialog(page, dlg)
+            notas(page)
             page.show_dialog(ft.SnackBar(ft.Text("Nota salva com sucesso!"), bgcolor=ft.Colors.GREEN))
             page.update()
         conteudo = ferramentas.ler_arquivo(f"notas/{arquivo}")
@@ -98,18 +103,13 @@ def notas(page):
                     expand=True,
                     label="Conteúdo da nota",
                 )
-        dlg = ferramentas.dialog(
-            page=page,
-            titulo=arquivo,
-            icone_d=ft.Icons.EDIT_NOTE_ROUNDED,
-            icone_e=ft.Icons.INFO,
-            funcao_btn=lambda _: salvar(nota.value, arquivo),
-            texto_btn="Salvar",
-            conteudo=[
-                nota
-            ]
-        )
-        page.show_dialog(dlg)
+        
+        page.clean()
+        page.floating_action_button = ft.FloatingActionButton(bgcolor=page.bgcolor,icon=ft.Icons.SAVE_ROUNDED,on_click=lambda _: salvar(nota.value, arquivo))
+        page.add(ferramentas.header(page=page,titulo=arquivo,icone=ft.Icons.EDIT_NOTE_ROUNDED,destino=lambda _: notas(page)))
+        page.add(ferramentas.container(page=page,controles=[nota]))
+        page.update()
+
         
         
     #coluna principal    

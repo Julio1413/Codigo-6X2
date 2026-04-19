@@ -1,61 +1,80 @@
-# App app
+<h1 align="center">MeiaDouze (6X2 App)</h1>
 
-## Run the app
+<p align="center">
+  O aplicativo oficial para gerenciamento estudantil, calendários, tarefas, avisos e utilitários. Construído com <b>Python</b> e <b>Flet</b>, desenvolvido para ser multiplataforma.
+</p>
 
-### uv
+## 📋 Sobre o Projeto
 
-Run as a desktop app:
+O **6X2 App (MeiaDouze)** é uma aplicação voltada para organizar e auxiliar os alunos nas demandas diárias. Ele utiliza a tecnologia do framework **Flet** para entregar uma interface bonita, responsiva e multiplataforma (Windows, Linux, macOS, Android), aliada ao **Supabase** no backend para sincronização e armazenamento em tempo real de eventos, avisos e logins de usuários.
 
-```
-uv run flet run
-```
+## ✨ Funcionalidades Principais
 
-Run as a web app:
+* 📅 **Calendário Interativo:** Visualize o mês, marque dias com eventos (trabalhos, provas) e acesse detalhes do dia.
+* 🕒 **Horários de Aula:** Tenha acesso fácil aos quadros de horários de cada dia da semana.
+* 🔔 **Avisos:** Fique por dentro dos principais comunicados e recados e informações de versão.
+* 📋 **Exibição em Lista:** Liste todos os eventos/tarefas futuras de maneira organizada.
+* 🔗 **Links Utilitários:** Atalhos para os principais sites e recursos úteis para os alunos.
+* 🧮 **Calculadora Intregada:** Faça cálculos rápidos sem precisar sair do app.
+* 📝 **Bloco de Notas:** Um local simples e rápido para guardar pequenas anotações.
+* ⚙️ **Funções de Administrador:** Controle e logs voltados aos administradores da aplicação.
+* 🌗 **Suporte a Temas:** Alternância entre modos claro, escuro e padronização pelo sistema.
 
-```
-uv run flet run --web
-```
+## 🛠️ Tecnologias Utilizadas
 
-For more details on running the app, refer to the [Getting Started Guide](https://docs.flet.dev/).
+- **[Python 3.9+](https://www.python.org/)** – Linguagem base.
+- **[Flet](https://flet.dev/)** (v0.80.2) – Framework de Interface Gráfica, utilizado para criar toda a UI de modo fluído e reativo (baseado no Flutter).
+- **[Supabase](https://supabase.io/)** – Backend as a Service utilizado como banco de dados (PostgreSQL) e autenticação.
+- **[Requests](https://pypi.org/project/requests/)** – Requisições HTTP, comunicações externas.
 
-## Build the app
+## 🚀 Como Executar Localmente
 
-### Android
+### 1. Requisitos
+Você precisa ter o **Python >= 3.9** instalado na sua máquina, além do gerenciador de pacotes da sua preferência (`pip`, `poetry`, ou `uv`).
 
-```
-flet build apk -v
-```
-
-For more details on building and signing `.apk` or `.aab`, refer to the [Android Packaging Guide](https://docs.flet.dev/publish/android/).
-
-### iOS
-
-```
-flet build ipa -v
-```
-
-For more details on building and signing `.ipa`, refer to the [iOS Packaging Guide](https://docs.flet.dev/publish/ios/).
-
-### macOS
-
-```
-flet build macos -v
+### 2. Clonando o Repositório
+```bash
+git clone https://github.com/seu-usuario/Codigo-6X2.git
+cd Codigo-6X2/app
 ```
 
-For more details on building macOS package, refer to the [macOS Packaging Guide](https://docs.flet.dev/publish/macos/).
+### 3. Instalando as Dependências
+Utilizando o `uv` instalado, ou instalando via requirements extras:
+```bash
+# Via Poetry Local
+poetry install
 
-### Linux
-
-```
-flet build linux -v
-```
-
-For more details on building Linux package, refer to the [Linux Packaging Guide](https://docs.flet.dev/publish/linux/).
-
-### Windows
-
-```
-flet build windows -v
+# Ou caso utilize o Flet/Pip diretamente
+pip install flet==0.80.2 requests==2.32.5
 ```
 
-For more details on building Windows package, refer to the [Windows Packaging Guide](https://docs.flet.dev/publish/windows/).
+### 4. Executando o App
+Para ver a aplicação rodando como um aplicativo desktop/mobile (via flet app):
+```bash
+flet run src/
+```
+
+Para rodar em modo Android (usado no ambiente de dev):
+```bash
+flet run --android src/
+```
+
+*(Obs: Configurações do Supabase para conexão com banco de dados devem estar devidamente configuradas/arquivadas nos caminhos esperados da aplicação)*.
+
+## 📂 Estrutura de Diretórios Básica
+
+```
+Codigo-6X2/
+└── app/
+    ├── src/
+    │   ├── main.py              # Ponto de entrada (Entrypoint)
+    │   └── pages/               # Páginas e views da aplicação (home, config, notas, etc.)
+    ├── pyproject.toml           # Dependências e Metadados
+    └── README.md                # Este documento
+```
+
+## 👨‍💻 Autores e Licença
+**Equipe:** Error 404 / Cubepy  
+**Copyright:** © 2025 by Cubepy  
+
+Sinta-se à vontade para relatar bugs nas *issues* caso encontre alguma anomalia na aplicação.

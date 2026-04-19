@@ -75,7 +75,7 @@ def header(
     from pages import home
     if destino is None:
         destino = home.inicial
-    return ft.Column(controls=[ft.Container(height=90,padding=-10,
+    return ft.Column(controls=[ft.Container(height=60,padding=-10,
         content=ft.Container(alignment=ft.Alignment.BOTTOM_CENTER,
             padding=ft.padding.only(left=padding(), right=padding(),bottom=10),
             blur=(10,10),
@@ -97,7 +97,7 @@ def header(
                 ],
                 alignment=ft.MainAxisAlignment.SPACE_AROUND,
             ),
-            height=50,
+            height=500,
             margin=ft.margin.all(-10),
         ),
     ),

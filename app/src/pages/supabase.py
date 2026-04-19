@@ -1,5 +1,7 @@
 import json
 import requests
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 import threading
 from pages import ferramentas   
 # ======================================================
@@ -33,9 +35,9 @@ def _run_in_thread(func, callback=None):
 
 def _ler_arquivo(caminho):
     try:
-        
         return ferramentas.ler_arquivo(caminho).strip()
-    except:
+    except Exception as e:
+        print(f"Erro ao ler arquivo {caminho}: {e}")
         return None
 
 
@@ -72,13 +74,18 @@ def testar_conexao(url,key,tabela_teste="login"):
             return None
 
         endpoint = f"{url}/rest/v1/{tabela_teste}?limit=1"
-        r = requests.get(endpoint, headers=_headers(key), timeout=1000)
+        r = requests.get(
+            endpoint, 
+            headers=_headers(key), 
+            timeout=1000,
+            verify=False
+        )
 
         if r.status_code == 200:
             return r.json()
 
-
-    except:
+    except Exception as e:
+        print(f"Erro no testar_conexao: {e}")
         return None
 
 # ======================================================
@@ -105,13 +112,15 @@ def ler_tabela(nome_tabela, filtros=None):
             endpoint,
             headers=_headers(key),
             params=params,
-            timeout=1000
+            timeout=1000,
+            verify=False
         )
 
         if r.status_code == 200:
             return r.json()
 
-    except:
+    except Exception as e:
+        print("ERRO:", e)
         return None
 
 # ======================================================
@@ -136,7 +145,8 @@ def inserir_linha(nome_tabela, dados: dict):
             endpoint,
             headers=_headers(key),
             data=json.dumps(dados),
-            timeout=1000
+            timeout=1000,
+            verify=False
         )
 
         if r.status_code in (200, 201):
@@ -144,7 +154,8 @@ def inserir_linha(nome_tabela, dados: dict):
 
         return None
 
-    except:
+    except Exception as e:
+        print("ERRO:", e)
         return None
 
 # ======================================================
@@ -173,7 +184,8 @@ def atualizar_linha(nome_tabela, filtros: dict, novos_dados: dict):
             headers=_headers(key),
             params=filtros,
             data=json.dumps(novos_dados),
-            timeout=1000
+            timeout=1000,
+            verify=False
         )
 
         if r.status_code in (200, 204):
@@ -181,7 +193,8 @@ def atualizar_linha(nome_tabela, filtros: dict, novos_dados: dict):
 
         return None
 
-    except:
+    except Exception as e:
+        print("ERRO:", e)
         return None
 
 # ======================================================
@@ -206,7 +219,8 @@ def excluir_linha(nome_tabela, filtros: dict):
             endpoint,
             headers=_headers(key),
             params=filtros,
-            timeout=1000
+            timeout=1000,
+            verify=False
         )
 
         if r.status_code in (200, 204):
@@ -214,7 +228,8 @@ def excluir_linha(nome_tabela, filtros: dict):
 
         return None
 
-    except:
+    except Exception as e:
+        print("ERRO:", e)
         return None
 def inserir_log(mensagem: str):
     from datetime import datetime

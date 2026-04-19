@@ -1,28 +1,28 @@
 
-import os
 import flet as ft
 from pages import configs, ferramentas, horarios_aula, supabase,calculadora,links,logs,avisos,notas,login_page,eventos_lista
-import platform
 from datetime import datetime
 import calendar
 # Funções do calendário
-versao_atual = "1.0"
+versao_atual = "1.1"
 
 materias = [
-    "Matemática",
-    "Português",
-    "História",
+    "Educação Física",
+    "Química",
+    "L. Portuguesa",
     "Geografia",
+    "Redes",
     "Biologia",
     "Física",
-    "Química",
-    "Informática",
-    "Artes",
+    "LP 1",
+    "História",
+    "APS",
     "Inglês",
-    "Algoritmos",
-    "Sociologia",
     "Filosofia",
-    "IMMH 1"
+    "IMMH 2",
+    "Sociologia",
+    "Matemática",
+    ""
     ]
 
 
@@ -48,16 +48,39 @@ def adicionar_evento(data, materia, titulo, autor, conteudo):
     )
     
 
-def excluir_evento(evento):
-    supabase.excluir_linha(
-        "eventos",
-        filtros={"id": f"eq.{evento['id']}"}
-    )
-    print(
-        supabase.inserir_log(
-            f'Evento excluído: {evento["titulo"]}\nEm {evento["data"]}\nDescrição: {evento["conteudo"]}'
+def excluir_evento(evento, page, callback=None):
+    def confirmar_exclusao(e):
+        supabase.excluir_linha(
+            "eventos",
+            filtros={"id": f"eq.{evento['id']}"}
         )
+        print(
+            supabase.inserir_log(
+                f'Evento excluído: {evento["titulo"]}\nEm {evento["data"]}\nDescrição: {evento["conteudo"]}'
+            )
+        )
+        ferramentas.fechar_dialog(dlg=dlg, page=page)
+        page.show_dialog(ft.SnackBar(ft.Text("Evento excluído com sucesso!"), bgcolor=ft.Colors.GREEN))
+        if callback:
+            callback()
+        page.update()
+
+    dlg = ferramentas.dialog(
+        page=page,
+        titulo='Confirmar exclusão',
+        icone_d=ft.Icons.DELETE_ROUNDED,
+        icone_e=ft.Icons.WARNING_ROUNDED,
+        conteudo=[
+            ft.Row(
+                alignment=ft.MainAxisAlignment.CENTER,
+                controls=[ft.Icon(icon=ft.Icons.DELETE_FOREVER_ROUNDED, color=ft.Colors.RED, size=200)]
+            ),
+            ft.Text(f'Tem certeza que deseja excluir o evento "{evento["titulo"]}"? Essa ação será registrada nos logs do servidor.'),
+        ],
+        funcao_btn=confirmar_exclusao,
+        texto_btn="Excluir",
     )
+    page.show_dialog(dlg)
 
 
 def inicial (page):
@@ -181,21 +204,24 @@ def inicial (page):
     # VISUALIZAR CONTEÚDO COMPLETO
     # -----------------------------
     def abrir_dialogo_detalhes(evento):
-
-        dlg = ferramentas.dialog(page,
-            icone_d=ft.Icons.MENU_BOOK_ROUNDED,
-            icone_e=ft.Icons.CALENDAR_TODAY_ROUNDED,
+        page.clean()
+        page.add(ferramentas.header(
+            page=page,
+            icone=ft.Icons.CALENDAR_TODAY_ROUNDED,
             titulo=f"{evento['titulo']}",
-            conteudo=[
+            
+        ))
+        page.add(ferramentas.container(
+            page=page,
+            controles=[
                 ft.Text(f"Matéria: {evento['materia']}"),
                 ft.Text(f"Autor: {evento['autor']}"),
                 ft.Text(f"{evento['registrado_em']}"),
                 ft.Divider(),
-                ft.Text(evento["conteudo"], size=14),
+                ft.Text(evento["conteudo"], size=14,selectable=True),
             ]
-        )
+        ))
 
-        page.show_dialog(dlg)
         page.update()
 
     # -----------------------------
@@ -212,10 +238,10 @@ def inicial (page):
                 def abrir_conteudo(ev=ev):
                     abrir_dialogo_detalhes(ev)
                 def remover(ev=ev):
-                    page.show_dialog(ft.SnackBar(ft.Text("Evento excluído com sucesso!"),bgcolor=ft.Colors.GREEN))
-                    excluir_evento(ev)
-                    atualizar_lista()
-                    gerar_calendario(ano, mes)
+                    def ao_excluir():
+                        atualizar_lista()
+                        gerar_calendario(ano, mes)
+                    excluir_evento(ev, page, callback=ao_excluir)
                 lista_eventos.controls.append(
                     ft.Container(
                         padding=10,
@@ -238,26 +264,37 @@ def inicial (page):
         # --------------- DIALOG PARA ADICIONAR EVENTO ---------------
         campo_titulo = ft.TextField(label="Título", width=page.width)
         campo_materia = ft.Dropdown(label="Matéria", options=[ft.dropdown.Option(m) for m in materias],width=page.width)
-        campo_conteudo = ft.TextField(label="Conteúdo", multiline=True, expand=True,border_color=ft.Colors.TRANSPARENT)
+        campo_conteudo = ft.TextField(label="Conteúdo", multiline=True, expand=True,height=page.height*0.6,border_color=ft.Colors.TRANSPARENT)
 
         def abrir_add_evento(e):
-            dlg2 = ferramentas.dialog(
-                page,
+            page.clean()
+            page.add(ferramentas.header(
+                page=page,
+                icone=ft.Icons.CALENDAR_TODAY_ROUNDED,
                 titulo=f"Adicionar em {dia}/{mes}/{ano}",
-                icone_d=ft.Icons.ADD,
-                icone_e=ft.Icons.CALENDAR_TODAY_ROUNDED,
-                funcao_btn=lambda e: salvar_evento(dlg2),
-                texto_btn="Salvar",
-                conteudo=[
+            ))
+            page.add(ferramentas.container(
+                page=page,
+                controles=[
                     campo_titulo,
                     campo_materia,
-                    campo_conteudo
+                    campo_conteudo,
+                    ft.ElevatedButton(
+                        width=page.width,
+                        bgcolor=page.bgcolor,
+                        content=ft.Row(
+                            controls=[
+                                ft.Icon(ft.Icons.ADD, color=ferramentas.brightness_text(page=page)),
+                                ft.Text("Salvar", color=ferramentas.brightness_text(page=page))
+                            ]
+                        ),
+                        on_click=lambda e: salvar_evento()
+                    )
                 ]
-            )
-            page.show_dialog(dlg2)
+            ))
             page.update()
 
-        def salvar_evento(dlg2):
+        def salvar_evento():
             if not campo_titulo.value or not campo_materia.value or not campo_conteudo.value:
                 return
             adicionar_evento(
@@ -270,22 +307,34 @@ def inicial (page):
             page.show_dialog(ft.SnackBar(ft.Text("Evento adicionado com sucesso!"),bgcolor=ft.Colors.GREEN))  
             atualizar_lista()
             gerar_calendario(ano, mes)
-            fechar_dialog(dlg2)
+            inicial(page)
             page.update()
 
-        dlg = ferramentas.dialog(
-            page,
+        page.clean()
+        page.add(ferramentas.header(
+            page=page,
+            icone=ft.Icons.CALENDAR_TODAY_ROUNDED,
             titulo=f"Eventos de {dia}/{mes}/{ano}",
-            icone_d=ft.Icons.MENU_BOOK_ROUNDED,
-            icone_e=ft.Icons.CALENDAR_TODAY_ROUNDED,
-            funcao_btn=abrir_add_evento,
-            texto_btn="Adicionar terefa",
-            conteudo=[
+        ))
+        page.add(ferramentas.container(
+            page=page,
+            controles=[
                 ft.Text("Eventos cadastrados:", weight="bold"),
                 lista_eventos,
+                ft.Placeholder(height=page.height*0.4,color=ft.Colors.TRANSPARENT),
+                ft.ElevatedButton(
+                    width=page.width,
+                    bgcolor=page.bgcolor,
+                    content=ft.Row(
+                        controls=[
+                            ft.Icon(ft.Icons.ADD, color=ferramentas.brightness_text(page=page)),
+                            ft.Text("Adicionar tarefa", color=ferramentas.brightness_text(page=page))
+                        ]
+                    ),
+                    on_click=abrir_add_evento
+                )
             ]
-        )
-        page.show_dialog(dlg)
+        ))
         page.update()
 
     # -----------------------------
@@ -399,7 +448,7 @@ def inicial (page):
             expand=True,
             controls=[
                 ft.Column(
-                        scroll=ft.ScrollMode.AUTO,
+                        scroll=ft.ScrollMode.HIDDEN,
                         alignment=ft.MainAxisAlignment.START,
                         controls=[
                             ft.Text(f'\n',size=39),

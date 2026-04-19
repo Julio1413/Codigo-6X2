@@ -1,4 +1,3 @@
-import shutil, platform
 import flet as ft
 from pages import home, ferramentas,login_page
 
@@ -130,9 +129,9 @@ def configs(page):
         ft.Placeholder(expand=True,color=ft.Colors.TRANSPARENT),
         #termos de uso e privacidade
         ft.Column(alignment=ft.MainAxisAlignment.END,expand=True,controls=[
-            ft.ElevatedButton(content=ft.Text('Sair'),bgcolor=ft.Colors.RED_600,icon=ft.Icons.COLOR_LENS_ROUNDED,width=page.width,on_click=deslogar),
+            ft.ElevatedButton(content=ft.Text('Sair'),bgcolor=ft.Colors.RED_600,icon=ft.Icons.LOGOUT_ROUNDED,width=page.width,on_click=deslogar),
             ft.Row(alignment=ft.MainAxisAlignment.CENTER,controls=[
-            ft.Text('404 Studios - 2025',text_align=ft.TextAlign.CENTER,size=10,weight=ft.FontWeight.BOLD,color=ft.Colors.GREY),
+            ft.Text('Desenvolvido por 404 Studios',text_align=ft.TextAlign.CENTER,size=10,weight=ft.FontWeight.BOLD,color=ft.Colors.GREY),
                 ]),
             ft.Text('\n',size=1)
         ])
