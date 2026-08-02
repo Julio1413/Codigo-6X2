@@ -43,7 +43,7 @@ def _ler_arquivo(caminho):
 
 def obter_credenciais():
     url = 'https://ellyuhvkzfwgkyvhktis.supabase.co'
-    key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsbHl1aHZremZ3Z2t5dmhrdGlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzMzU5NTYsImV4cCI6MjA4MTkxMTk1Nn0.xTcZbx3fDs_tx_uRVG33yIkzAYLdz_sjTZM87vb5QGE'
+    key = ''
 
     if not url or not key:
         return None, None
